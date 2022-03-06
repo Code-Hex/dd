@@ -15,5 +15,5 @@ func WithIndent(indent int) OptionFunc {
 }
 
 func Dump(v interface{}, opts ...OptionFunc) string {
-	return newDataDumper(v).build().String()
+	return newDataDumper(v, opts...).build().String()
 }
