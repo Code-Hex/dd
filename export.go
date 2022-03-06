@@ -1,14 +1,21 @@
 package dd
 
 import (
+	"fmt"
 	"math/big"
 	"reflect"
-	"strconv"
+	"strings"
 	"time"
 )
 
+// Writer is a writer for dump string.
+type Writer interface {
+	Write(s string)
+	WriteBlock(s string)
+}
+
 // DumpFunc is a function to dump you specified custom format.
-type DumpFunc func(reflect.Value) string
+type DumpFunc func(reflect.Value, Writer)
 
 type OptionFunc func(*options)
 
@@ -29,9 +36,21 @@ func WithIndent(indent int) OptionFunc {
 func WithTime(format string) OptionFunc {
 	return WithDumpFunc(
 		reflect.TypeOf(time.Time{}),
-		func(rv reflect.Value) string {
+		func(rv reflect.Value, w Writer) {
 			tmp := rv.Interface().(time.Time)
-			return strconv.Quote(tmp.Format(format))
+			w.Write("func() time.Time ")
+			w.WriteBlock(
+				strings.Join(
+					[]string{
+						fmt.Sprintf(
+							"tmp, _ := time.Parse(%q, %q)",
+							format, tmp.Format(format),
+						),
+						"return tmp",
+					},
+					"\n",
+				),
+			)
 		},
 	)
 }
@@ -41,9 +60,22 @@ func WithTime(format string) OptionFunc {
 func WithBigInt() OptionFunc {
 	return WithDumpFunc(
 		reflect.TypeOf(big.Int{}),
-		func(rv reflect.Value) string {
-			tmp := rv.Interface().(big.Int)
-			return tmp.String()
+		func(rv reflect.Value, w Writer) {
+			tmp := rv.Interface().(*big.Int)
+			w.Write("func() *big.Int ")
+			w.WriteBlock(
+				strings.Join(
+					[]string{
+						"tmp := new(big.Int)",
+						fmt.Sprintf(
+							"tmp.SetString(%q)",
+							tmp.String(),
+						),
+						"return tmp",
+					},
+					"\n",
+				),
+			)
 		},
 	)
 }
@@ -53,9 +85,22 @@ func WithBigInt() OptionFunc {
 func WithBigFloat() OptionFunc {
 	return WithDumpFunc(
 		reflect.TypeOf(big.Float{}),
-		func(rv reflect.Value) string {
-			tmp := rv.Interface().(big.Float)
-			return tmp.String()
+		func(rv reflect.Value, w Writer) {
+			tmp := rv.Interface().(*big.Float)
+			w.Write("func() *big.Float ")
+			w.WriteBlock(
+				strings.Join(
+					[]string{
+						"tmp := new(big.Float)",
+						fmt.Sprintf(
+							"tmp.SetString(%q)",
+							tmp.String(),
+						),
+						"return tmp",
+					},
+					"\n",
+				),
+			)
 		},
 	)
 }

@@ -357,19 +357,19 @@ func TestWithDumpFunc(t *testing.T) {
 		{
 			name:       "time unix date",
 			v:          time.Date(2022, 3, 6, 12, 0, 0, 0, time.UTC),
-			want:       "\"Sun Mar  6 12:00:00 UTC 2022\"",
+			want:       "func() time.Time {\n  tmp, _ := time.Parse(\"Mon Jan _2 15:04:05 MST 2006\", \"Sun Mar  6 12:00:00 UTC 2022\")\n  return tmp\n}",
 			dumpOption: dd.WithTime(time.UnixDate),
 		},
 		{
 			name:       "big int",
 			v:          big.NewInt(10),
-			want:       "10",
+			want:       "func() *big.Int {\n  tmp := new(big.Int)\n  tmp.SetString(\"10\")\n  return tmp\n}",
 			dumpOption: dd.WithBigInt(),
 		},
 		{
 			name:       "big float",
 			v:          big.NewFloat(12345.6789),
-			want:       "12345.6789",
+			want:       "func() *big.Float {\n  tmp := new(big.Float)\n  tmp.SetString(\"12345.6789\")\n  return tmp\n}",
 			dumpOption: dd.WithBigFloat(),
 		},
 	}

@@ -1,6 +1,7 @@
 package dd
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"reflect"
@@ -76,7 +77,8 @@ func (d *dumper) String() string {
 func (d *dumper) build() *dumper {
 	for typ, convertFunc := range d.convertibleTypes {
 		if d.value.Type().ConvertibleTo(typ) {
-			return d.writeRaw(convertFunc(d.value))
+			convertFunc(d.value, &dumpWriter{d})
+			return d
 		}
 	}
 	kind := d.value.Kind()
@@ -169,7 +171,8 @@ func (d *dumper) writePtr() *dumper {
 	}
 	for typ, convertFunc := range d.convertibleTypes {
 		if deref.Type().ConvertibleTo(typ) {
-			return d.writeRaw(convertFunc(deref))
+			convertFunc(d.value, &dumpWriter{d})
+			return d
 		}
 	}
 	return d.printf("&%s", d.clone(deref).String())
@@ -385,4 +388,20 @@ func (d *dumper) writeRaw(s string) *dumper {
 func (d *dumper) printf(format string, a ...interface{}) *dumper {
 	fmt.Fprintf(d.tw, format, a...)
 	return d
+}
+
+type dumpWriter struct{ *dumper }
+
+var _ Writer = (*dumpWriter)(nil)
+
+func (d *dumpWriter) Write(s string) { d.dumper.writeRaw(s) }
+func (d *dumpWriter) WriteBlock(s string) {
+	d.dumper.writeRaw("{\n")
+	d.dumper.depth++
+	scanner := bufio.NewScanner(strings.NewReader(s))
+	for scanner.Scan() {
+		d.dumper.writeIndentedRaw(scanner.Text() + "\n")
+	}
+	d.dumper.depth--
+	d.dumper.writeIndentedRaw("}")
 }
