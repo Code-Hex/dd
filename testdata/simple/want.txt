@@ -1,0 +1,21 @@
+map[string]interface {}{
+  "float":  0.000000,
+  "int":    100000.000000,
+  "object": map[string]interface {}{
+    "slice": []interface {}{
+      1.000000,
+      2.000000,
+      "3",
+      []interface {}{
+        4.000000,
+      },
+      map[string]interface {}{
+        "5": map[string]interface {}{},
+      },
+    },
+  },
+  "slice": []interface {}{
+    []interface {}{},
+  },
+  "string": ":)",
+}
