@@ -164,6 +164,9 @@ func (d *dumper) writeFunc() *dumper {
 }
 
 func (d *dumper) writePtr() *dumper {
+	if d.value.IsNil() {
+		return d.printf("(%s)(nil)", d.value.Type())
+	}
 	pointer := d.value.Pointer()
 	if d.visitPointers[pointer] {
 		return d.writePointer()

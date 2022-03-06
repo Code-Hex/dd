@@ -306,6 +306,16 @@ func TestPointer(t *testing.T) {
 		want string
 	}{
 		{
+			name: "nil pointer of int",
+			v:    (*int)(nil),
+			want: "(*int)(nil)",
+		},
+		{
+			name: "nil pointer of pointer of int",
+			v:    (**int)(nil),
+			want: "(**int)(nil)",
+		},
+		{
 			name: "pointer of int",
 			v:    new(int),
 			want: "(*int)(unsafe.Pointer(uintptr(",
