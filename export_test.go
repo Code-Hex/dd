@@ -443,6 +443,12 @@ func TestWithDumpFunc(t *testing.T) {
 			want:       "func() *big.Float {\n  tmp := new(big.Float)\n  tmp.SetString(\"12345.6789\")\n  return tmp\n}",
 			dumpOption: dd.WithBigFloat(),
 		},
+		{
+			name:       "[]byte",
+			v:          []byte("Hello, World"),
+			want:       "[]byte{\n  0x48,\n  0x65,\n  0x6c,\n  0x6c,\n  0x6f,\n  0x2c,\n  0x20,\n  0x57,\n  0x6f,\n  0x72,\n  0x6c,\n  0x64,\n}",
+			dumpOption: dd.WithBytes(dd.Hex),
+		},
 	}
 	for _, tc := range cases {
 		tc := tc

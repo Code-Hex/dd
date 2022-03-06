@@ -41,6 +41,28 @@ func WithIndent(indent int) OptionFunc {
 	}
 }
 
+// WithBytes is a wrapper of WithDumpFunc for []byte.
+// Dumps the byte slice values instead of displaying uint8 slice.
+func WithBytes(typ int) OptionFunc {
+	return WithDumpFunc(
+		reflect.TypeOf([]byte{}),
+		func(rv reflect.Value, w Writer) {
+			tmp := rv.Interface().([]byte)
+			w.Write("[]byte")
+			var buf strings.Builder
+			for _, b := range tmp {
+				switch typ {
+				case Binary:
+					fmt.Fprintf(&buf, "0b%08b,\n", b)
+				default:
+					fmt.Fprintf(&buf, "0x%02x,\n", b)
+				}
+			}
+			w.WriteBlock(buf.String())
+		},
+	)
+}
+
 // WithTime is a wrapper of WithDumpFunc for time.Time.
 // Dumps the numeric values instead of displaying the struct contents.
 func WithTime(format string) OptionFunc {

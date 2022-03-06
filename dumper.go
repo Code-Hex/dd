@@ -327,28 +327,28 @@ func (d *dumper) writeUnsignedInt(typ int) *dumper {
 		case Binary:
 			return d.printf("0b%08b", d.value.Uint())
 		case Hex:
-			return d.printf("0b%02x", d.value.Uint())
+			return d.printf("0x%02x", d.value.Uint())
 		}
 	case reflect.Uint16:
 		switch typ {
 		case Binary:
 			return d.printf("0b%016b", d.value.Uint())
 		case Hex:
-			return d.printf("0b%04x", d.value.Uint())
+			return d.printf("0x%04x", d.value.Uint())
 		}
 	case reflect.Uint32:
 		switch typ {
 		case Binary:
 			return d.printf("0b%032b", d.value.Uint())
 		case Hex:
-			return d.printf("0b%08x", d.value.Uint())
+			return d.printf("0x%08x", d.value.Uint())
 		}
 	case reflect.Uint64:
 		switch typ {
 		case Binary:
 			return d.printf("0b%064b", d.value.Uint())
 		case Hex:
-			return d.printf("0b%016x", d.value.Uint())
+			return d.printf("0x%016x", d.value.Uint())
 		}
 	}
 	return d.writeRaw(strconv.FormatUint(d.value.Uint(), 10))
