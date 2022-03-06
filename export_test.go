@@ -235,6 +235,16 @@ func TestDumpBasic(t *testing.T) {
 			v:    struct{ age int }{age: 10},
 			want: "struct { age int }{\n  age: 10,\n}",
 		},
+		{
+			name: "func(int, int) bool { return false }",
+			v:    func(int, int) bool { return false },
+			want: "func(int, int) bool {\n  // ...\n  return false\n}",
+		},
+		{
+			name: "func(int, int) (bool, error) { return false, nil }",
+			v:    func(int, int) (bool, error) { return false, nil },
+			want: "func(int, int) (bool, error) {\n  // ...\n  return false, nil\n}",
+		},
 	}
 	t.Run("typed", func(t *testing.T) {
 		for _, tc := range cases {

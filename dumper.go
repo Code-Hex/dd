@@ -79,7 +79,7 @@ func (d *dumper) build() *dumper {
 	case reflect.Chan:
 		return d.writeChan()
 	case reflect.Func:
-		return d.printf("%s {...}", d.value.Type().String())
+		return d.writeFunc()
 	case reflect.Struct:
 		return d.writeStruct()
 	case reflect.Interface:
@@ -103,6 +103,37 @@ func (d *dumper) clone(obj interface{}) *dumper {
 	child.depth = d.depth
 	child.exportedOnly = d.exportedOnly
 	return child.build()
+}
+
+func (d *dumper) writeFunc() *dumper {
+	if d.value.IsNil() {
+		return d.writeRaw("nil")
+	}
+	d.printf("%s {\n", d.value.Type().String())
+
+	// function body
+	d.depth++
+	d.writeIndentedRaw("// ...\n")
+	defer func() {
+		d.depth--
+		d.writeRaw("}")
+	}()
+
+	typ := d.value.Type()
+	numout := typ.NumOut()
+	if numout == 0 {
+		return d.writeIndentedRaw("return\n")
+	}
+
+	zeroValues := make([]string, 0, numout)
+	for i := 0; i < numout; i++ {
+		outTyp := typ.Out(i)
+		zeroValues = append(
+			zeroValues,
+			d.clone(reflect.Zero(outTyp)).String(),
+		)
+	}
+	return d.indentedPrintf("return %s\n", strings.Join(zeroValues, ", "))
 }
 
 func (d *dumper) writePtr() *dumper {
@@ -320,6 +351,16 @@ func (d *dumper) writeIndent() *dumper {
 		return d
 	}
 	return d.writeRaw(d.indent())
+}
+
+func (d *dumper) writeIndentedRaw(s string) *dumper {
+	d.writeIndent()
+	return d.writeRaw(s)
+}
+
+func (d *dumper) indentedPrintf(format string, a ...interface{}) *dumper {
+	d.writeIndent()
+	return d.printf(format, a...)
 }
 
 // writeRaw appends the contents of s to p's buffer.
