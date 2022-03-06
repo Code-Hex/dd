@@ -4,10 +4,13 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"mime/multipart"
+	"net/textproto"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
+	"unsafe"
 
 	dd "github.com/Code-Hex/go-data-dumper"
 )
@@ -238,6 +241,16 @@ func TestDumpBasic(t *testing.T) {
 			want: "struct { age int }{\n  age: 10,\n}",
 		},
 		{
+			name: "empty func",
+			v:    func() {},
+			want: "func() {\n  // ...\n}",
+		},
+		{
+			name: "nil empty func",
+			v:    (func())(nil),
+			want: "(func())(nil)",
+		},
+		{
 			name: "func(int, int) bool { return false }",
 			v:    func(int, int) bool { return false },
 			want: "func(int, int) bool {\n  // ...\n  return false\n}",
@@ -246,6 +259,11 @@ func TestDumpBasic(t *testing.T) {
 			name: "func(int, int) (bool, error) { return false, nil }",
 			v:    func(int, int) (bool, error) { return false, nil },
 			want: "func(int, int) (bool, error) {\n  // ...\n  return false, nil\n}",
+		},
+		{
+			name: "nil func(int, int) bool",
+			v:    (func(int, int) bool)(nil),
+			want: "(func(int, int) bool)(nil)",
 		},
 	}
 	t.Run("typed", func(t *testing.T) {
@@ -321,6 +339,16 @@ func TestPointer(t *testing.T) {
 			v:    &[2]int{1, 2},
 			want: "&[2]int{\n  1,\n  2,\n}",
 		},
+		{
+			name: "unsafe.Pointer",
+			v:    (unsafe.Pointer(&[2]int{1, 2})),
+			want: "unsafe.Pointer(uintptr(",
+		},
+		{
+			name: "chan int",
+			v:    make(chan int),
+			want: "(chan int)(unsafe.Pointer(uintptr(",
+		},
 	}
 	t.Run("typed", func(t *testing.T) {
 		for _, tc := range cases {
@@ -345,6 +373,28 @@ func TestPointer(t *testing.T) {
 			})
 		}
 	})
+}
+
+func TestWithIndent(t *testing.T) {
+	want := "[]int{\n    1,\n    2,\n}"
+	got := dd.Dump([]int{1, 2}, dd.WithIndent(4))
+	if want != got {
+		t.Fatalf("want %q, but got %q", want, got)
+	}
+}
+
+func TestWithExportedOnly(t *testing.T) {
+	// contains exported and unexported
+	fh := &multipart.FileHeader{
+		Filename: "file1",
+		Header:   make(textproto.MIMEHeader),
+		Size:     10,
+	}
+	got := dd.Dump(fh, dd.WithExportedOnly())
+	want := "&multipart.FileHeader{\n  Filename: \"file1\",\n  Header: textproto.MIMEHeader{},\n  Size: 10,\n}"
+	if want != got {
+		t.Fatalf("want %q, but got %q", want, got)
+	}
 }
 
 func TestWithDumpFunc(t *testing.T) {

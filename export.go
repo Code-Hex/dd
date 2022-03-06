@@ -17,14 +17,19 @@ type Writer interface {
 // DumpFunc is a function to dump you specified custom format.
 type DumpFunc func(reflect.Value, Writer)
 
+// OptionFunc is a function for making options.
 type OptionFunc func(*options)
 
+// WithExportedOnly enables to display only exported struct field.
+// ignores unexported field.
 func WithExportedOnly() OptionFunc {
 	return func(o *options) {
 		o.exportedOnly = true
 	}
 }
 
+// WithIndent adjust indent nested in any blocks.
+// default is 2 spaces.
 func WithIndent(indent int) OptionFunc {
 	return func(o *options) {
 		o.indentSize = indent

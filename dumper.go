@@ -104,7 +104,7 @@ func (d *dumper) build() *dumper {
 	case reflect.Interface:
 		return d.writeInterface()
 	case reflect.UnsafePointer:
-		return d.printf("%s(%v)", d.value.Type().String(), d.value.Pointer())
+		return d.printf("%s(uintptr(%v))", d.value.Type().String(), d.value.Pointer())
 	case reflect.Ptr:
 		return d.writePtr()
 	}
@@ -119,7 +119,7 @@ func (d *dumper) build() *dumper {
 
 func (d *dumper) writeFunc() *dumper {
 	if d.value.IsNil() {
-		return d.writeRaw("nil")
+		return d.printf("(%s)(nil)", d.value.Type().String())
 	}
 	d.printf("%s {\n", d.value.Type().String())
 
@@ -134,7 +134,7 @@ func (d *dumper) writeFunc() *dumper {
 	typ := d.value.Type()
 	numout := typ.NumOut()
 	if numout == 0 {
-		return d.writeIndentedRaw("return\n")
+		return d
 	}
 
 	zeroValues := make([]string, 0, numout)
@@ -201,7 +201,7 @@ func (d *dumper) writeStruct() *dumper {
 		field := d.value.Type().Field(idx)
 		fieldVal := d.value.Field(idx)
 		dumper := d.clone(fieldVal)
-		d.indentedPrintf("%s:\t%s,\n", field.Name, dumper.String())
+		d.indentedPrintf("%s: %s,\n", field.Name, dumper.String())
 	}
 	d.depth--
 	return d.writeRaw("}")
@@ -214,7 +214,10 @@ func (d *dumper) writeChan() *dumper {
 	if d.value.IsNil() {
 		return d.writeRaw("(nil)")
 	}
-	return d.printf("(%v)", d.value.Pointer())
+	return d.printf(
+		"(unsafe.Pointer(uintptr(0x%x)))",
+		d.value.Pointer(),
+	)
 }
 
 func (d *dumper) writeChanType() *dumper {
