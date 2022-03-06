@@ -457,3 +457,55 @@ func TestWithDumpFunc(t *testing.T) {
 		})
 	}
 }
+
+func TestCircularRefs(t *testing.T) {
+	cases := []struct {
+		name string
+		v    interface{}
+		want string
+	}{
+		{
+			name: "struct",
+			v: func() interface{} {
+				type A struct {
+					a *A
+				}
+				a := &A{}
+				a.a = a
+				return a
+			}(),
+			want: "a: (*dd_test.A)(unsafe.Pointer(uintptr(",
+		},
+		{
+			name: "map",
+			v: func() interface{} {
+				a := map[struct{}]interface{}{}
+				a[struct{}{}] = a
+				return a
+			}(),
+			want: "struct {}{}: (map[struct {}]interface {})(unsafe.Pointer(uintptr(",
+		},
+		{
+			name: "slice",
+			v: func() interface{} {
+				a := make([]interface{}, 1)
+				a[0] = a
+				return a
+			}(),
+			want: "([]interface {})(unsafe.Pointer(uintptr(",
+		},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			got := dd.Dump(tc.v)
+			if !strings.Contains(got, tc.want) {
+				t.Log(got)
+				t.Fatalf("want %q, but got %q", tc.want, got)
+			}
+			if _, err := parser.ParseExpr(got); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}

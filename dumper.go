@@ -27,10 +27,11 @@ func newDefaultOptions() *options {
 }
 
 type dumper struct {
-	buf   *strings.Builder
-	tw    *tabwriter.Writer
-	value reflect.Value
-	depth int
+	buf           *strings.Builder
+	tw            *tabwriter.Writer
+	value         reflect.Value
+	depth         int
+	visitPointers map[uintptr]bool
 	// options
 	exportedOnly     bool
 	convertibleTypes map[reflect.Type]DumpFunc
@@ -52,6 +53,7 @@ func newDataDumper(obj interface{}, optFuncs ...OptionFunc) *dumper {
 		tw:               tabwriter.NewWriter(buf, opts.indentSize, 0, 1, ' ', 0),
 		value:            valueOf(obj),
 		depth:            0,
+		visitPointers:    make(map[uintptr]bool),
 		exportedOnly:     opts.exportedOnly,
 		convertibleTypes: opts.convertibleTypes,
 	}
@@ -60,6 +62,7 @@ func newDataDumper(obj interface{}, optFuncs ...OptionFunc) *dumper {
 func (d *dumper) clone(obj interface{}) *dumper {
 	child := newDataDumper(obj)
 	child.depth = d.depth
+	child.visitPointers = d.visitPointers
 	child.exportedOnly = d.exportedOnly
 	child.convertibleTypes = d.convertibleTypes
 	return child.build()
@@ -121,6 +124,13 @@ func (d *dumper) writeFunc() *dumper {
 	if d.value.IsNil() {
 		return d.printf("(%s)(nil)", d.value.Type().String())
 	}
+
+	pointer := d.value.Pointer()
+	if d.visitPointers[pointer] {
+		return d.writePointer()
+	}
+	d.visitPointers[pointer] = true
+
 	d.printf("%s {\n", d.value.Type().String())
 
 	// function body
@@ -128,7 +138,7 @@ func (d *dumper) writeFunc() *dumper {
 	d.writeIndentedRaw("// ...\n")
 	defer func() {
 		d.depth--
-		d.writeRaw("}")
+		d.writeIndentedRaw("}")
 	}()
 
 	typ := d.value.Type()
@@ -152,22 +162,20 @@ func (d *dumper) writePtr() *dumper {
 	if d.value.IsNil() {
 		return d.writeRaw("nil")
 	}
+	pointer := d.value.Pointer()
+	if d.visitPointers[pointer] {
+		return d.writePointer()
+	}
+	d.visitPointers[pointer] = true
+
 	// dereference
 	deref := d.value.Elem()
 	kind := deref.Kind()
 	if kind == reflect.Ptr {
-		return d.printf(
-			"(%s)(unsafe.Pointer(uintptr(0x%x)))",
-			d.value.Type().String(),
-			d.value.Pointer(),
-		)
+		return d.writePointer()
 	}
 	if isPrimitive(kind) {
-		return d.printf(
-			"(%s)(unsafe.Pointer(uintptr(0x%x)))",
-			d.value.Type().String(),
-			d.value.Pointer(),
-		)
+		return d.writePointer()
 	}
 	for typ, convertFunc := range d.convertibleTypes {
 		if deref.Type().ConvertibleTo(typ) {
@@ -204,32 +212,15 @@ func (d *dumper) writeStruct() *dumper {
 		d.indentedPrintf("%s: %s,\n", field.Name, dumper.String())
 	}
 	d.depth--
-	return d.writeRaw("}")
+	return d.writeIndentedRaw("}")
 }
 
 // writeChan writes channel info. format will be like `(chan int)(nil)`
 func (d *dumper) writeChan() *dumper {
-	d.writeRaw("(").writeChanType().writeRaw(")")
-
 	if d.value.IsNil() {
-		return d.writeRaw("(nil)")
+		return d.printf("(%s)(nil)", d.value.Type().String())
 	}
-	return d.printf(
-		"(unsafe.Pointer(uintptr(0x%x)))",
-		d.value.Pointer(),
-	)
-}
-
-func (d *dumper) writeChanType() *dumper {
-	switch d.value.Type().ChanDir() {
-	case reflect.RecvDir:
-		return d.printf("<-chan %s", d.value.Type().Elem().String())
-	case reflect.SendDir:
-		return d.printf("chan<- %s", d.value.Type().Elem().String())
-	case reflect.BothDir:
-		return d.writeRaw(d.value.Type().String())
-	}
-	panic("unreachable")
+	return d.writePointer()
 }
 
 func (d *dumper) writeMap() *dumper {
@@ -241,6 +232,13 @@ func (d *dumper) writeMap() *dumper {
 	if d.value.Len() == 0 {
 		return d.printf("%s{}", d.value.Type().String())
 	}
+
+	pointer := d.value.Pointer()
+	if d.visitPointers[pointer] {
+		return d.writePointer()
+	}
+	d.visitPointers[pointer] = true
+
 	d.printf("%s{\n",
 		d.value.Type().String(),
 	)
@@ -257,7 +255,7 @@ func (d *dumper) writeMap() *dumper {
 		)
 	}
 	d.depth--
-	return d.writeRaw("}")
+	return d.writeIndentedRaw("}")
 }
 
 func (d *dumper) writeSlice() *dumper {
@@ -266,6 +264,13 @@ func (d *dumper) writeSlice() *dumper {
 	if d.value.IsNil() {
 		return d.printf("(%s)(nil)", d.value.Type().String())
 	}
+
+	pointer := d.value.Pointer()
+	if d.visitPointers[pointer] {
+		return d.writePointer()
+	}
+	d.visitPointers[pointer] = true
+
 	return d.writeArray()
 }
 
@@ -355,6 +360,14 @@ func (d *dumper) writeUnsignedInt(typ int) *dumper {
 		}
 	}
 	return d.writeRaw(strconv.FormatUint(d.value.Uint(), 10))
+}
+
+func (d *dumper) writePointer() *dumper {
+	return d.printf(
+		"(%s)(unsafe.Pointer(uintptr(0x%x)))",
+		d.value.Type().String(),
+		d.value.Pointer(),
+	)
 }
 
 func (d *dumper) writeBool(b bool) *dumper {
