@@ -418,6 +418,75 @@ func TestWithExportedOnly(t *testing.T) {
 	}
 }
 
+func TestWithUintFormat(t *testing.T) {
+	cases := []struct {
+		name       string
+		v          interface{}
+		want       string
+		dumpOption dd.OptionFunc
+	}{
+		{
+			name:       "uint8 binary format",
+			v:          uint8(0),
+			want:       "0b00000000",
+			dumpOption: dd.WithUintFormat(dd.BinaryUint),
+		},
+		{
+			name:       "uint8 hex format",
+			v:          uint8(0),
+			want:       "0x00",
+			dumpOption: dd.WithUintFormat(dd.HexUint),
+		},
+		{
+			name:       "uint16 binary format",
+			v:          uint16(0),
+			want:       "0b0000000000000000",
+			dumpOption: dd.WithUintFormat(dd.BinaryUint),
+		},
+		{
+			name:       "uint16 hex format",
+			v:          uint16(0),
+			want:       "0x0000",
+			dumpOption: dd.WithUintFormat(dd.HexUint),
+		},
+		{
+			name:       "uint32 binary format",
+			v:          uint32(0),
+			want:       "0b00000000000000000000000000000000",
+			dumpOption: dd.WithUintFormat(dd.BinaryUint),
+		},
+		{
+			name:       "uint32 hex format",
+			v:          uint32(0),
+			want:       "0x00000000",
+			dumpOption: dd.WithUintFormat(dd.HexUint),
+		},
+		{
+			name:       "uint64 binary format",
+			v:          uint64(0),
+			want:       "0b0000000000000000000000000000000000000000000000000000000000000000",
+			dumpOption: dd.WithUintFormat(dd.BinaryUint),
+		},
+		{
+			name:       "uint64 hex format",
+			v:          uint64(0),
+			want:       "0x0000000000000000",
+			dumpOption: dd.WithUintFormat(dd.HexUint),
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := dd.Dump(tc.v, tc.dumpOption)
+			if tc.want != got {
+				t.Fatalf("want %q, but got %q", tc.want, got)
+			}
+			if _, err := parser.ParseExpr(got); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
 func TestWithDumpFunc(t *testing.T) {
 	cases := []struct {
 		name       string
@@ -447,7 +516,13 @@ func TestWithDumpFunc(t *testing.T) {
 			name:       "[]byte",
 			v:          []byte("Hello, World"),
 			want:       "[]byte{\n  0x48,\n  0x65,\n  0x6c,\n  0x6c,\n  0x6f,\n  0x2c,\n  0x20,\n  0x57,\n  0x6f,\n  0x72,\n  0x6c,\n  0x64,\n}",
-			dumpOption: dd.WithBytes(dd.Hex),
+			dumpOption: dd.WithBytes(dd.HexUint),
+		},
+		{
+			name:       "[]byte binary",
+			v:          []byte{0},
+			want:       "[]byte{\n  0b00000000,\n}",
+			dumpOption: dd.WithBytes(dd.BinaryUint),
 		},
 	}
 	for _, tc := range cases {

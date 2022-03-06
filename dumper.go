@@ -15,6 +15,7 @@ import (
 type options struct {
 	exportedOnly     bool
 	indentSize       int
+	uintFormat       UintFormat
 	convertibleTypes map[reflect.Type]DumpFunc
 }
 
@@ -22,6 +23,7 @@ func newDefaultOptions() *options {
 	return &options{
 		exportedOnly:     false,
 		indentSize:       2,
+		uintFormat:       DecimalUint,
 		convertibleTypes: map[reflect.Type]DumpFunc{},
 	}
 }
@@ -34,6 +36,7 @@ type dumper struct {
 	visitPointers map[uintptr]bool
 	// options
 	exportedOnly     bool
+	uintFormat       UintFormat
 	convertibleTypes map[reflect.Type]DumpFunc
 }
 
@@ -55,6 +58,7 @@ func newDataDumper(obj interface{}, optFuncs ...OptionFunc) *dumper {
 		depth:            0,
 		visitPointers:    make(map[uintptr]bool),
 		exportedOnly:     opts.exportedOnly,
+		uintFormat:       opts.uintFormat,
 		convertibleTypes: opts.convertibleTypes,
 	}
 }
@@ -64,6 +68,7 @@ func (d *dumper) clone(obj interface{}) *dumper {
 	child.depth = d.depth
 	child.visitPointers = d.visitPointers
 	child.exportedOnly = d.exportedOnly
+	child.uintFormat = d.uintFormat
 	child.convertibleTypes = d.convertibleTypes
 	return child.build()
 }
@@ -303,7 +308,7 @@ func (d *dumper) writeNumber() *dumper {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		return d.printf("%d", d.value.Int())
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
-		return d.writeUnsignedInt(Decimal)
+		return d.writeUnsignedInt()
 	case reflect.Float32, reflect.Float64:
 		return d.printf("%f", d.value.Float())
 	case reflect.Complex64:
@@ -314,40 +319,34 @@ func (d *dumper) writeNumber() *dumper {
 	panic(fmt.Errorf("unreachable type: %s", d.value.Type()))
 }
 
-const (
-	Decimal = iota
-	Binary
-	Hex
-)
-
-func (d *dumper) writeUnsignedInt(typ int) *dumper {
+func (d *dumper) writeUnsignedInt() *dumper {
 	switch d.value.Kind() {
 	case reflect.Uint8:
-		switch typ {
-		case Binary:
+		switch d.uintFormat {
+		case BinaryUint:
 			return d.printf("0b%08b", d.value.Uint())
-		case Hex:
+		case HexUint:
 			return d.printf("0x%02x", d.value.Uint())
 		}
 	case reflect.Uint16:
-		switch typ {
-		case Binary:
+		switch d.uintFormat {
+		case BinaryUint:
 			return d.printf("0b%016b", d.value.Uint())
-		case Hex:
+		case HexUint:
 			return d.printf("0x%04x", d.value.Uint())
 		}
 	case reflect.Uint32:
-		switch typ {
-		case Binary:
+		switch d.uintFormat {
+		case BinaryUint:
 			return d.printf("0b%032b", d.value.Uint())
-		case Hex:
+		case HexUint:
 			return d.printf("0x%08x", d.value.Uint())
 		}
 	case reflect.Uint64:
-		switch typ {
-		case Binary:
+		switch d.uintFormat {
+		case BinaryUint:
 			return d.printf("0b%064b", d.value.Uint())
-		case Hex:
+		case HexUint:
 			return d.printf("0x%016x", d.value.Uint())
 		}
 	}

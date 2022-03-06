@@ -8,6 +8,19 @@ import (
 	"time"
 )
 
+type UintFormat int
+
+const (
+	// DecimalUint is mode to display uint as decimal format
+	DecimalUint UintFormat = iota
+	// BinaryUint is mode to display uint as binary format
+	// The format be like 0b00000000
+	BinaryUint
+	// HexUint is mode to display uint as hex format
+	// The format be like 0x00
+	HexUint
+)
+
 // Dump dumps specified data.
 func Dump(data interface{}, opts ...OptionFunc) string {
 	return newDataDumper(data, opts...).build().String()
@@ -41,9 +54,17 @@ func WithIndent(indent int) OptionFunc {
 	}
 }
 
+// WithUintFormat specify mode to display uint format.
+// default is DecimalUint.
+func WithUintFormat(mode UintFormat) OptionFunc {
+	return func(o *options) {
+		o.uintFormat = mode
+	}
+}
+
 // WithBytes is a wrapper of WithDumpFunc for []byte.
 // Dumps the byte slice values instead of displaying uint8 slice.
-func WithBytes(typ int) OptionFunc {
+func WithBytes(mode UintFormat) OptionFunc {
 	return WithDumpFunc(
 		reflect.TypeOf([]byte{}),
 		func(rv reflect.Value, w Writer) {
@@ -51,8 +72,8 @@ func WithBytes(typ int) OptionFunc {
 			w.Write("[]byte")
 			var buf strings.Builder
 			for _, b := range tmp {
-				switch typ {
-				case Binary:
+				switch mode {
+				case BinaryUint:
 					fmt.Fprintf(&buf, "0b%08b,\n", b)
 				default:
 					fmt.Fprintf(&buf, "0x%02x,\n", b)
