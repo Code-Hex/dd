@@ -1,4 +1,4 @@
-package data_test
+package dd_test
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/Code-Hex/go-data-dumper"
+	dd "github.com/Code-Hex/go-data-dumper"
 )
 
 func TestDumpBasic(t *testing.T) {
@@ -239,7 +239,7 @@ func TestDumpBasic(t *testing.T) {
 		for _, tc := range cases {
 			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
-				if got := data.Dump(tc.v); tc.want != got {
+				if got := dd.Dump(tc.v); tc.want != got {
 					t.Fatalf("want %q, but got %q", tc.want, got)
 				}
 			})
@@ -250,7 +250,7 @@ func TestDumpBasic(t *testing.T) {
 		for _, tc := range cases {
 			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
-				if got := data.Dump(interface{}(tc.v)); tc.want != got {
+				if got := dd.Dump(interface{}(tc.v)); tc.want != got {
 					t.Fatalf("want %q, but got %q", tc.want, got)
 				}
 			})

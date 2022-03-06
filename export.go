@@ -1,4 +1,4 @@
-package data
+package dd
 
 type OptionFunc func(*options)
 
