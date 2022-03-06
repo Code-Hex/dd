@@ -82,13 +82,20 @@ func (d *dumper) build() *dumper {
 		return d.printf("%s {...}", d.value.Type().String())
 	case reflect.Struct:
 		return d.writeStruct()
+	case reflect.Interface:
+		return d.writeInterface()
 	case reflect.UnsafePointer:
 		return d.printf("%s(%v)", d.value.Type().String(), d.value.Pointer())
+	case reflect.Ptr:
+		return d.writePtr()
 	}
 	if isNumber(kind) {
 		return d.writeNumber()
 	}
-	return d.writeInterface()
+	if d.value.CanInterface() {
+		return d.printf("%v", d.value.Interface())
+	}
+	return d.writeRaw(d.value.String())
 }
 
 func (d *dumper) clone(obj interface{}) *dumper {
@@ -96,6 +103,30 @@ func (d *dumper) clone(obj interface{}) *dumper {
 	child.depth = d.depth
 	child.exportedOnly = d.exportedOnly
 	return child.build()
+}
+
+func (d *dumper) writePtr() *dumper {
+	if d.value.IsNil() {
+		return d.writeRaw("nil")
+	}
+	// dereference
+	deref := d.value.Elem()
+	kind := deref.Kind()
+	if kind == reflect.Ptr {
+		return d.printf(
+			"(%s)(unsafe.Pointer(uintptr(0x%x)))",
+			d.value.Type().String(),
+			d.value.Pointer(),
+		)
+	}
+	if isPrimitive(kind) {
+		return d.printf(
+			"(%s)(unsafe.Pointer(uintptr(0x%x)))",
+			d.value.Type().String(),
+			d.value.Pointer(),
+		)
+	}
+	return d.printf("&%s", d.clone(deref).String())
 }
 
 func (d *dumper) writeStruct() *dumper {
@@ -128,6 +159,7 @@ func (d *dumper) writeStruct() *dumper {
 	return d.writeRaw("}")
 }
 
+// writeChan writes channel info. format will be like `(chan int)(nil)`
 func (d *dumper) writeChan() *dumper {
 	d.writeRaw("(").writeChanType().writeRaw(")")
 

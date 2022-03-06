@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 	"testing"
 
 	dd "github.com/Code-Hex/go-data-dumper"
@@ -251,6 +252,82 @@ func TestDumpBasic(t *testing.T) {
 			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
 				if got := dd.Dump(interface{}(tc.v)); tc.want != got {
+					t.Fatalf("want %q, but got %q", tc.want, got)
+				}
+			})
+		}
+	})
+
+}
+
+func TestPointer(t *testing.T) {
+	cases := []struct {
+		name string
+		v    interface{}
+		want string
+	}{
+		{
+			name: "pointer of int",
+			v:    new(int),
+			want: "(*int)(unsafe.Pointer(uintptr(",
+		},
+		{
+			name: "pointer of string",
+			v:    new(string),
+			want: "(*string)(unsafe.Pointer(uintptr(",
+		},
+		{
+			name: "pointer of bool",
+			v:    new(bool),
+			want: "(*bool)(unsafe.Pointer(uintptr(",
+		},
+		{
+			name: "pointer of uint8",
+			v:    new(uint8),
+			want: "(*uint8)(unsafe.Pointer(uintptr(",
+		},
+		{
+			name: "pointer of struct",
+			v:    &struct{ age int }{age: 10},
+			want: "&struct { age int }{\n  age: 10,\n}",
+		},
+		{
+			name: "pointer of pointer of struct",
+			v: func() interface{} {
+				a := &struct{ age int }{age: 10}
+				return &a
+			}(),
+			want: "(**struct { age int })(unsafe.Pointer(uintptr(",
+		},
+		{
+			name: "pointer of slice",
+			v:    &[]int{1, 2},
+			want: "&[]int{\n  1,\n  2,\n}",
+		},
+		{
+			name: "pointer of array",
+			v:    &[2]int{1, 2},
+			want: "&[2]int{\n  1,\n  2,\n}",
+		},
+	}
+	t.Run("typed", func(t *testing.T) {
+		for _, tc := range cases {
+			tc := tc
+			t.Run(tc.name, func(t *testing.T) {
+				got := dd.Dump(tc.v)
+				if !strings.Contains(got, tc.want) {
+					t.Fatalf("want %q, but got %q", tc.want, got)
+				}
+			})
+		}
+	})
+
+	t.Run("wrapped with interface", func(t *testing.T) {
+		for _, tc := range cases {
+			tc := tc
+			t.Run(tc.name, func(t *testing.T) {
+				got := dd.Dump(interface{}(tc.v))
+				if !strings.Contains(got, tc.want) {
 					t.Fatalf("want %q, but got %q", tc.want, got)
 				}
 			})

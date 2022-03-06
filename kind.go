@@ -2,6 +2,10 @@ package dd
 
 import "reflect"
 
+func isPrimitive(kind reflect.Kind) bool {
+	return kind == reflect.String || kind == reflect.Bool || isNumber(kind)
+}
+
 func isNumber(kind reflect.Kind) bool {
 	return isInt(kind) || isUint(kind) || isFloat(kind) || isComplex(kind)
 }
