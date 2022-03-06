@@ -254,7 +254,7 @@ func (d *dumper) writeArray() *dumper {
 		return d.printf("%s{}", d.value.Type().String())
 	}
 	d.printf("%s{\n", d.value.Type().String())
-	return d.writeList().writeRaw("}")
+	return d.writeList().writeIndentedRaw("}")
 }
 
 func (d *dumper) writeList() *dumper {
@@ -262,8 +262,7 @@ func (d *dumper) writeList() *dumper {
 	for i := 0; i < d.value.Len(); i++ {
 		elem := d.value.Index(i)
 		dumper := d.clone(elem)
-		d.writeIndent()
-		d.printf("%s,\n", dumper.String())
+		d.indentedPrintf("%s,\n", dumper.String())
 	}
 	d.depth--
 	return d
