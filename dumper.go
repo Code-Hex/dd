@@ -159,9 +159,6 @@ func (d *dumper) writeFunc() *dumper {
 }
 
 func (d *dumper) writePtr() *dumper {
-	if d.value.IsNil() {
-		return d.writeRaw("nil")
-	}
 	pointer := d.value.Pointer()
 	if d.visitPointers[pointer] {
 		return d.writePointer()
@@ -295,15 +292,10 @@ func (d *dumper) writeList() *dumper {
 
 func (d *dumper) writeInterface() *dumper {
 	elem := d.value.Elem()
-	// immediate nil value which is like `var a = interface{}(nil)`
-	// NOTE(codehex): maybe unnecessary?
-	if elem.Kind() == reflect.Invalid {
-		return d.writeRaw("nil")
-	}
 	if elem.IsValid() {
 		return d.clone(elem)
 	}
-	return d.printf("(*%s)(nil)", elem.Type().String())
+	return d.writeRaw("nil")
 }
 
 func (d *dumper) writeNumber() *dumper {
@@ -319,7 +311,7 @@ func (d *dumper) writeNumber() *dumper {
 	case reflect.Complex128:
 		return d.printf("%v", d.value.Complex())
 	}
-	return d.printf("%#v", d.value.Interface())
+	panic(fmt.Errorf("unreachable type: %s", d.value.Type()))
 }
 
 const (
