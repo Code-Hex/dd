@@ -12,14 +12,16 @@ import (
 )
 
 type options struct {
-	exportedOnly bool
-	indentSize   int
+	exportedOnly     bool
+	indentSize       int
+	convertibleTypes map[reflect.Type]DumpFunc
 }
 
 func newDefaultOptions() *options {
 	return &options{
-		exportedOnly: false,
-		indentSize:   2,
+		exportedOnly:     false,
+		indentSize:       2,
+		convertibleTypes: map[reflect.Type]DumpFunc{},
 	}
 }
 
@@ -29,7 +31,8 @@ type dumper struct {
 	value reflect.Value
 	depth int
 	// options
-	exportedOnly bool
+	exportedOnly     bool
+	convertibleTypes map[reflect.Type]DumpFunc
 }
 
 var _ interface {
@@ -44,12 +47,21 @@ func newDataDumper(obj interface{}, optFuncs ...OptionFunc) *dumper {
 		apply(opts)
 	}
 	return &dumper{
-		buf:          buf,
-		tw:           tabwriter.NewWriter(buf, opts.indentSize, 0, 1, ' ', 0),
-		value:        valueOf(obj),
-		depth:        0,
-		exportedOnly: opts.exportedOnly,
+		buf:              buf,
+		tw:               tabwriter.NewWriter(buf, opts.indentSize, 0, 1, ' ', 0),
+		value:            valueOf(obj),
+		depth:            0,
+		exportedOnly:     opts.exportedOnly,
+		convertibleTypes: opts.convertibleTypes,
 	}
+}
+
+func (d *dumper) clone(obj interface{}) *dumper {
+	child := newDataDumper(obj)
+	child.depth = d.depth
+	child.exportedOnly = d.exportedOnly
+	child.convertibleTypes = d.convertibleTypes
+	return child.build()
 }
 
 func (d *dumper) indent() string {
@@ -62,6 +74,11 @@ func (d *dumper) String() string {
 }
 
 func (d *dumper) build() *dumper {
+	for typ, convertFunc := range d.convertibleTypes {
+		if d.value.Type().ConvertibleTo(typ) {
+			return d.writeRaw(convertFunc(d.value))
+		}
+	}
 	kind := d.value.Kind()
 	switch kind {
 	case reflect.Invalid:
@@ -96,13 +113,6 @@ func (d *dumper) build() *dumper {
 		return d.printf("%v", d.value.Interface())
 	}
 	return d.writeRaw(d.value.String())
-}
-
-func (d *dumper) clone(obj interface{}) *dumper {
-	child := newDataDumper(obj)
-	child.depth = d.depth
-	child.exportedOnly = d.exportedOnly
-	return child.build()
 }
 
 func (d *dumper) writeFunc() *dumper {
@@ -157,6 +167,11 @@ func (d *dumper) writePtr() *dumper {
 			d.value.Pointer(),
 		)
 	}
+	for typ, convertFunc := range d.convertibleTypes {
+		if deref.Type().ConvertibleTo(typ) {
+			return d.writeRaw(convertFunc(deref))
+		}
+	}
 	return d.printf("&%s", d.clone(deref).String())
 }
 
@@ -183,8 +198,7 @@ func (d *dumper) writeStruct() *dumper {
 		field := d.value.Type().Field(idx)
 		fieldVal := d.value.Field(idx)
 		dumper := d.clone(fieldVal)
-		d.writeIndent()
-		d.printf("%s:\t%s,\n", field.Name, dumper.String())
+		d.indentedPrintf("%s:\t%s,\n", field.Name, dumper.String())
 	}
 	d.depth--
 	return d.writeRaw("}")

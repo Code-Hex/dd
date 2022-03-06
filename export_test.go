@@ -3,9 +3,11 @@ package dd_test
 import (
 	"fmt"
 	"math"
+	"math/big"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	dd "github.com/Code-Hex/go-data-dumper"
 )
@@ -343,4 +345,41 @@ func TestPointer(t *testing.T) {
 			})
 		}
 	})
+}
+
+func TestWithDumpFunc(t *testing.T) {
+	cases := []struct {
+		name       string
+		v          interface{}
+		want       string
+		dumpOption dd.OptionFunc
+	}{
+		{
+			name:       "time unix date",
+			v:          time.Date(2022, 3, 6, 12, 0, 0, 0, time.UTC),
+			want:       "\"Sun Mar  6 12:00:00 UTC 2022\"",
+			dumpOption: dd.WithTime(time.UnixDate),
+		},
+		{
+			name:       "big int",
+			v:          big.NewInt(10),
+			want:       "10",
+			dumpOption: dd.WithBigInt(),
+		},
+		{
+			name:       "big float",
+			v:          big.NewFloat(12345.6789),
+			want:       "12345.6789",
+			dumpOption: dd.WithBigFloat(),
+		},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			got := dd.Dump(tc.v, tc.dumpOption)
+			if tc.want != got {
+				t.Fatalf("want %q, but got %q", tc.want, got)
+			}
+		})
+	}
 }
