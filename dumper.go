@@ -11,11 +11,24 @@ import (
 	"github.com/Code-Hex/go-data-dumper/internal/sort"
 )
 
+type options struct {
+	exportedOnly bool
+	indentSize   int
+}
+
+func newDefaultOptions() *options {
+	return &options{
+		exportedOnly: false,
+		indentSize:   2,
+	}
+}
+
 type dumper struct {
-	buf          *strings.Builder
-	tw           *tabwriter.Writer
-	value        reflect.Value
-	depth        int
+	buf   *strings.Builder
+	tw    *tabwriter.Writer
+	value reflect.Value
+	depth int
+	// options
 	exportedOnly bool
 }
 
@@ -23,22 +36,20 @@ var _ interface {
 	fmt.Stringer
 } = (*dumper)(nil)
 
-const indentSize = 2
-
-func newDataDumper(obj interface{}, opts ...OptionFunc) *dumper {
+func newDataDumper(obj interface{}, optFuncs ...OptionFunc) *dumper {
 	buf := new(strings.Builder)
-	ret := &dumper{
+	opts := newDefaultOptions()
+	// apply options
+	for _, apply := range optFuncs {
+		apply(opts)
+	}
+	return &dumper{
 		buf:          buf,
-		tw:           tabwriter.NewWriter(buf, indentSize, 0, 1, ' ', 0),
+		tw:           tabwriter.NewWriter(buf, opts.indentSize, 0, 1, ' ', 0),
 		value:        valueOf(obj),
 		depth:        0,
-		exportedOnly: false,
+		exportedOnly: opts.exportedOnly,
 	}
-	// apply options
-	for _, opt := range opts {
-		opt(ret)
-	}
-	return ret
 }
 
 func (d *dumper) indent() string {

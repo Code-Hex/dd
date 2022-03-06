@@ -1,10 +1,16 @@
 package data
 
-type OptionFunc func(*dumper)
+type OptionFunc func(*options)
 
 func WithExportedOnly() OptionFunc {
-	return func(d *dumper) {
-		d.exportedOnly = true
+	return func(o *options) {
+		o.exportedOnly = true
+	}
+}
+
+func WithIndent(indent int) OptionFunc {
+	return func(o *options) {
+		o.indentSize = indent
 	}
 }
 
