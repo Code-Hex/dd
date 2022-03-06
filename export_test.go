@@ -2,6 +2,7 @@ package dd_test
 
 import (
 	"fmt"
+	"go/parser"
 	"math"
 	"math/big"
 	"mime/multipart"
@@ -270,8 +271,12 @@ func TestDumpBasic(t *testing.T) {
 		for _, tc := range cases {
 			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
-				if got := dd.Dump(tc.v); tc.want != got {
+				got := dd.Dump(tc.v)
+				if tc.want != got {
 					t.Fatalf("want %q, but got %q", tc.want, got)
+				}
+				if _, err := parser.ParseExpr(got); err != nil {
+					t.Fatal(err)
 				}
 			})
 		}
@@ -281,8 +286,12 @@ func TestDumpBasic(t *testing.T) {
 		for _, tc := range cases {
 			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
-				if got := dd.Dump(interface{}(tc.v)); tc.want != got {
+				got := dd.Dump(interface{}(tc.v))
+				if tc.want != got {
 					t.Fatalf("want %q, but got %q", tc.want, got)
+				}
+				if _, err := parser.ParseExpr(got); err != nil {
+					t.Fatal(err)
 				}
 			})
 		}
@@ -358,6 +367,9 @@ func TestPointer(t *testing.T) {
 				if !strings.Contains(got, tc.want) {
 					t.Fatalf("want %q, but got %q", tc.want, got)
 				}
+				if _, err := parser.ParseExpr(got); err != nil {
+					t.Fatal(err)
+				}
 			})
 		}
 	})
@@ -370,6 +382,9 @@ func TestPointer(t *testing.T) {
 				if !strings.Contains(got, tc.want) {
 					t.Fatalf("want %q, but got %q", tc.want, got)
 				}
+				if _, err := parser.ParseExpr(got); err != nil {
+					t.Fatal(err)
+				}
 			})
 		}
 	})
@@ -380,6 +395,9 @@ func TestWithIndent(t *testing.T) {
 	got := dd.Dump([]int{1, 2}, dd.WithIndent(4))
 	if want != got {
 		t.Fatalf("want %q, but got %q", want, got)
+	}
+	if _, err := parser.ParseExpr(got); err != nil {
+		t.Fatal(err)
 	}
 }
 
@@ -394,6 +412,9 @@ func TestWithExportedOnly(t *testing.T) {
 	want := "&multipart.FileHeader{\n  Filename: \"file1\",\n  Header: textproto.MIMEHeader{},\n  Size: 10,\n}"
 	if want != got {
 		t.Fatalf("want %q, but got %q", want, got)
+	}
+	if _, err := parser.ParseExpr(got); err != nil {
+		t.Fatal(err)
 	}
 }
 
@@ -429,6 +450,9 @@ func TestWithDumpFunc(t *testing.T) {
 			got := dd.Dump(tc.v, tc.dumpOption)
 			if tc.want != got {
 				t.Fatalf("want %q, but got %q", tc.want, got)
+			}
+			if _, err := parser.ParseExpr(got); err != nil {
+				t.Fatal(err)
 			}
 		})
 	}

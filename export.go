@@ -8,6 +8,11 @@ import (
 	"time"
 )
 
+// Dump dumps specified data.
+func Dump(data interface{}, opts ...OptionFunc) string {
+	return newDataDumper(data, opts...).build().String()
+}
+
 // Writer is a writer for dump string.
 type Writer interface {
 	Write(s string)
@@ -115,8 +120,4 @@ func WithDumpFunc(target reflect.Type, f DumpFunc) OptionFunc {
 	return func(o *options) {
 		o.convertibleTypes[target] = f
 	}
-}
-
-func Dump(v interface{}, opts ...OptionFunc) string {
-	return newDataDumper(v, opts...).build().String()
 }
