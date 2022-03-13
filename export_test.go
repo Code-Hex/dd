@@ -13,7 +13,7 @@ import (
 	"time"
 	"unsafe"
 
-	dd "github.com/Code-Hex/go-data-dumper"
+	"github.com/Code-Hex/dd"
 )
 
 func TestDumpBasic(t *testing.T) {

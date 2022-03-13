@@ -9,7 +9,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/Code-Hex/go-data-dumper/internal/sort"
+	"github.com/Code-Hex/dd/internal/sort"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -112,8 +112,8 @@ func TestSortKeys(t *testing.T) {
 			[2]int{2, 3}, [2]int{2, 4}, [2]int{4, 0}, MyArray([2]int{2, 4}),
 			make(chan bool), make(chan bool), make(chan int), make(chan interface{}),
 			new(int), new(int),
-			"abc", "abcd", "abcde", "bar", "foo",
 			MyString("abc"), MyString("abcd"), MyString("abcde"),
+			"abc", "abcd", "abcde", "bar", "foo",
 			EmptyStruct{},
 			MyStruct{"alpha", [2]int{3, 3}, make(chan float64)},
 			MyStruct{"bravo", [2]int{2, 3}, make(chan float64)},

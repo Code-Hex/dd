@@ -9,7 +9,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/Code-Hex/go-data-dumper/internal/sort"
+	"github.com/Code-Hex/dd/internal/sort"
 )
 
 type options struct {
@@ -253,8 +253,7 @@ func (d *dumper) writeMap() *dumper {
 		val := d.value.MapIndex(key)
 		keyDumper := d.clone(key)
 		valDumper := d.clone(val)
-		d.writeIndent()
-		d.printf("%s:\t%s,\n",
+		d.indentedPrintf("%s:\t%s,\n",
 			keyDumper.String(),
 			valDumper.String(),
 		)

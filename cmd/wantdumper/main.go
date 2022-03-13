@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	dd "github.com/Code-Hex/go-data-dumper"
+	"github.com/Code-Hex/dd"
 )
 
 func main() {

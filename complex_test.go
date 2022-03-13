@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"testing"
 
-	dd "github.com/Code-Hex/go-data-dumper"
+	"github.com/Code-Hex/dd"
 	"github.com/google/go-cmp/cmp"
 )
 

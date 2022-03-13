@@ -1,4 +1,4 @@
-module github.com/Code-Hex/go-data-dumper
+module github.com/Code-Hex/dd
 
 go 1.17
 
