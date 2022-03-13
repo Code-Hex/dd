@@ -130,11 +130,9 @@ func (d *dumper) writeFunc() *dumper {
 		return d.printf("(%s)(nil)", d.value.Type().String())
 	}
 
-	pointer := d.value.Pointer()
-	if d.visitPointers[pointer] {
-		return d.writePointer()
+	if ret, ok := d.writeVisitedPointer(); ok {
+		return ret
 	}
-	d.visitPointers[pointer] = true
 
 	d.printf("%s {\n", d.value.Type().String())
 
@@ -167,11 +165,9 @@ func (d *dumper) writePtr() *dumper {
 	if d.value.IsNil() {
 		return d.printf("(%s)(nil)", d.value.Type())
 	}
-	pointer := d.value.Pointer()
-	if d.visitPointers[pointer] {
-		return d.writePointer()
+	if ret, ok := d.writeVisitedPointer(); ok {
+		return ret
 	}
-	d.visitPointers[pointer] = true
 
 	// dereference
 	deref := d.value.Elem()
@@ -238,11 +234,9 @@ func (d *dumper) writeMap() *dumper {
 		return d.printf("%s{}", d.value.Type().String())
 	}
 
-	pointer := d.value.Pointer()
-	if d.visitPointers[pointer] {
-		return d.writePointer()
+	if ret, ok := d.writeVisitedPointer(); ok {
+		return ret
 	}
-	d.visitPointers[pointer] = true
 
 	d.printf("%s{\n",
 		d.value.Type().String(),
@@ -269,11 +263,9 @@ func (d *dumper) writeSlice() *dumper {
 		return d.printf("(%s)(nil)", d.value.Type().String())
 	}
 
-	pointer := d.value.Pointer()
-	if d.visitPointers[pointer] {
-		return d.writePointer()
+	if ret, ok := d.writeVisitedPointer(); ok {
+		return ret
 	}
-	d.visitPointers[pointer] = true
 
 	return d.writeArray()
 }
@@ -361,6 +353,15 @@ func (d *dumper) writePointer() *dumper {
 		d.value.Type().String(),
 		d.value.Pointer(),
 	)
+}
+
+func (d *dumper) writeVisitedPointer() (*dumper, bool) {
+	pointer := d.value.Pointer()
+	if d.visitPointers[pointer] {
+		return d.writePointer(), true
+	}
+	d.visitPointers[pointer] = true
+	return d, false
 }
 
 func (d *dumper) writeBool(b bool) *dumper {
