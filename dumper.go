@@ -134,31 +134,28 @@ func (d *dumper) writeFunc() *dumper {
 		return ret
 	}
 
-	d.printf("%s {\n", d.value.Type().String())
+	d.writeRaw(d.value.Type().String())
+	d.writeRaw(" ")
 
-	// function body
-	d.depth++
-	d.writeIndentedRaw("// ...\n")
-	defer func() {
-		d.depth--
-		d.writeIndentedRaw("}")
-	}()
+	return d.writeBlock(func() {
+		// function body
+		d.writeIndentedRaw("// ...\n")
+		typ := d.value.Type()
+		numout := typ.NumOut()
+		if numout == 0 {
+			return
+		}
 
-	typ := d.value.Type()
-	numout := typ.NumOut()
-	if numout == 0 {
-		return d
-	}
-
-	zeroValues := make([]string, 0, numout)
-	for i := 0; i < numout; i++ {
-		outTyp := typ.Out(i)
-		zeroValues = append(
-			zeroValues,
-			d.clone(reflect.Zero(outTyp)).String(),
-		)
-	}
-	return d.indentedPrintf("return %s\n", strings.Join(zeroValues, ", "))
+		zeroValues := make([]string, 0, numout)
+		for i := 0; i < numout; i++ {
+			outTyp := typ.Out(i)
+			zeroValues = append(
+				zeroValues,
+				d.clone(reflect.Zero(outTyp)).String(),
+			)
+		}
+		d.indentedPrintf("return %s\n", strings.Join(zeroValues, ", "))
+	})
 }
 
 func (d *dumper) writePtr() *dumper {
@@ -204,16 +201,15 @@ func (d *dumper) writeStruct() *dumper {
 		return d.printf("%s{}", d.value.Type().String())
 	}
 
-	d.printf("%s{\n", d.value.Type().String())
-	d.depth++
-	for _, idx := range fieldIdxs {
-		field := d.value.Type().Field(idx)
-		fieldVal := d.value.Field(idx)
-		dumper := d.clone(fieldVal)
-		d.indentedPrintf("%s: %s,\n", field.Name, dumper.String())
-	}
-	d.depth--
-	return d.writeIndentedRaw("}")
+	d.writeRaw(d.value.Type().String())
+	return d.writeBlock(func() {
+		for _, idx := range fieldIdxs {
+			field := d.value.Type().Field(idx)
+			fieldVal := d.value.Field(idx)
+			dumper := d.clone(fieldVal)
+			d.indentedPrintf("%s: %s,\n", field.Name, dumper.String())
+		}
+	})
 }
 
 // writeChan writes channel info. format will be like `(chan int)(nil)`
@@ -238,22 +234,19 @@ func (d *dumper) writeMap() *dumper {
 		return ret
 	}
 
-	d.printf("%s{\n",
-		d.value.Type().String(),
-	)
+	d.writeRaw(d.value.Type().String())
 
-	d.depth++
-	for _, key := range sort.Keys(d.value.MapKeys()) {
-		val := d.value.MapIndex(key)
-		keyDumper := d.clone(key)
-		valDumper := d.clone(val)
-		d.indentedPrintf("%s:\t%s,\n",
-			keyDumper.String(),
-			valDumper.String(),
-		)
-	}
-	d.depth--
-	return d.writeIndentedRaw("}")
+	return d.writeBlock(func() {
+		for _, key := range sort.Keys(d.value.MapKeys()) {
+			val := d.value.MapIndex(key)
+			keyDumper := d.clone(key)
+			valDumper := d.clone(val)
+			d.indentedPrintf("%s:\t%s,\n",
+				keyDumper.String(),
+				valDumper.String(),
+			)
+		}
+	})
 }
 
 func (d *dumper) writeSlice() *dumper {
@@ -274,19 +267,18 @@ func (d *dumper) writeArray() *dumper {
 	if d.value.Len() == 0 {
 		return d.printf("%s{}", d.value.Type().String())
 	}
-	d.printf("%s{\n", d.value.Type().String())
-	return d.writeList().writeIndentedRaw("}")
+	d.writeRaw(d.value.Type().String())
+	return d.writeList()
 }
 
 func (d *dumper) writeList() *dumper {
-	d.depth++
-	for i := 0; i < d.value.Len(); i++ {
-		elem := d.value.Index(i)
-		dumper := d.clone(elem)
-		d.indentedPrintf("%s,\n", dumper.String())
-	}
-	d.depth--
-	return d
+	return d.writeBlock(func() {
+		for i := 0; i < d.value.Len(); i++ {
+			elem := d.value.Index(i)
+			dumper := d.clone(elem)
+			d.indentedPrintf("%s,\n", dumper.String())
+		}
+	})
 }
 
 func (d *dumper) writeInterface() *dumper {
@@ -362,6 +354,14 @@ func (d *dumper) writeVisitedPointer() (*dumper, bool) {
 	}
 	d.visitPointers[pointer] = true
 	return d, false
+}
+
+func (d *dumper) writeBlock(f func()) *dumper {
+	d.writeRaw("{\n")
+	d.depth++
+	f()
+	d.depth--
+	return d.writeIndentedRaw("}")
 }
 
 func (d *dumper) writeBool(b bool) *dumper {
