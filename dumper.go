@@ -85,16 +85,17 @@ func (d *dumper) String() string {
 }
 
 func (d *dumper) build() *dumper {
-	for typ, convertFunc := range d.convertibleTypes {
-		if d.value.Type().ConvertibleTo(typ) {
-			convertFunc(d.value, &dumpWriter{d})
-			return d
-		}
-	}
 	kind := d.value.Kind()
-	switch kind {
-	case reflect.Invalid:
+	if kind == reflect.Invalid {
 		return d.writeRaw("nil")
+	}
+
+	convertFunc, ok := d.convertibleTypes[d.value.Type()]
+	if ok {
+		convertFunc(d.value, &dumpWriter{d})
+		return d
+	}
+	switch kind {
 	case reflect.Bool:
 		return d.writeBool(d.value.Bool())
 	case reflect.String:
@@ -177,11 +178,10 @@ func (d *dumper) writePtr() *dumper {
 	if isPrimitive(kind) {
 		return d.writePointer()
 	}
-	for typ, convertFunc := range d.convertibleTypes {
-		if deref.Type().ConvertibleTo(typ) {
-			convertFunc(d.value, &dumpWriter{d})
-			return d
-		}
+	convertFunc, ok := d.convertibleTypes[deref.Type()]
+	if ok {
+		convertFunc(d.value, &dumpWriter{d})
+		return d
 	}
 	return d.printf("&%s", d.clone(deref).String())
 }
