@@ -12,11 +12,13 @@ import (
 	"github.com/Code-Hex/dd/internal/sort"
 )
 
+type dumpFunc func(reflect.Value, Writer)
+
 type options struct {
 	exportedOnly     bool
 	indentSize       int
 	uintFormat       UintFormat
-	convertibleTypes map[reflect.Type]DumpFunc
+	convertibleTypes map[reflect.Type]dumpFunc
 }
 
 func newDefaultOptions() *options {
@@ -24,7 +26,7 @@ func newDefaultOptions() *options {
 		exportedOnly:     false,
 		indentSize:       2,
 		uintFormat:       DecimalUint,
-		convertibleTypes: map[reflect.Type]DumpFunc{},
+		convertibleTypes: map[reflect.Type]dumpFunc{},
 	}
 }
 
@@ -37,7 +39,7 @@ type dumper struct {
 	// options
 	exportedOnly     bool
 	uintFormat       UintFormat
-	convertibleTypes map[reflect.Type]DumpFunc
+	convertibleTypes map[reflect.Type]dumpFunc
 }
 
 var _ interface {
@@ -130,48 +132,41 @@ func (d *dumper) writeFunc() *dumper {
 		return d.printf("(%s)(nil)", d.value.Type().String())
 	}
 
-	pointer := d.value.Pointer()
-	if d.visitPointers[pointer] {
-		return d.writePointer()
-	}
-	d.visitPointers[pointer] = true
-
-	d.printf("%s {\n", d.value.Type().String())
-
-	// function body
-	d.depth++
-	d.writeIndentedRaw("// ...\n")
-	defer func() {
-		d.depth--
-		d.writeIndentedRaw("}")
-	}()
-
-	typ := d.value.Type()
-	numout := typ.NumOut()
-	if numout == 0 {
-		return d
+	if ret, ok := d.writeVisitedPointer(); ok {
+		return ret
 	}
 
-	zeroValues := make([]string, 0, numout)
-	for i := 0; i < numout; i++ {
-		outTyp := typ.Out(i)
-		zeroValues = append(
-			zeroValues,
-			d.clone(reflect.Zero(outTyp)).String(),
-		)
-	}
-	return d.indentedPrintf("return %s\n", strings.Join(zeroValues, ", "))
+	d.writeRaw(d.value.Type().String())
+	d.writeRaw(" ")
+
+	return d.writeBlock(func() {
+		// function body
+		d.writeIndentedRaw("// ...\n")
+		typ := d.value.Type()
+		numout := typ.NumOut()
+		if numout == 0 {
+			return
+		}
+
+		zeroValues := make([]string, 0, numout)
+		for i := 0; i < numout; i++ {
+			outTyp := typ.Out(i)
+			zeroValues = append(
+				zeroValues,
+				d.clone(reflect.Zero(outTyp)).String(),
+			)
+		}
+		d.indentedPrintf("return %s\n", strings.Join(zeroValues, ", "))
+	})
 }
 
 func (d *dumper) writePtr() *dumper {
 	if d.value.IsNil() {
 		return d.printf("(%s)(nil)", d.value.Type())
 	}
-	pointer := d.value.Pointer()
-	if d.visitPointers[pointer] {
-		return d.writePointer()
+	if ret, ok := d.writeVisitedPointer(); ok {
+		return ret
 	}
-	d.visitPointers[pointer] = true
 
 	// dereference
 	deref := d.value.Elem()
@@ -199,7 +194,7 @@ func (d *dumper) writeStruct() *dumper {
 
 	for i := 0; i < numField; i++ {
 		field := d.value.Type().Field(i)
-		if d.exportedOnly && !isExported(field) {
+		if d.exportedOnly && !field.IsExported() {
 			continue
 		}
 		fieldIdxs = append(fieldIdxs, i)
@@ -208,16 +203,15 @@ func (d *dumper) writeStruct() *dumper {
 		return d.printf("%s{}", d.value.Type().String())
 	}
 
-	d.printf("%s{\n", d.value.Type().String())
-	d.depth++
-	for _, idx := range fieldIdxs {
-		field := d.value.Type().Field(idx)
-		fieldVal := d.value.Field(idx)
-		dumper := d.clone(fieldVal)
-		d.indentedPrintf("%s: %s,\n", field.Name, dumper.String())
-	}
-	d.depth--
-	return d.writeIndentedRaw("}")
+	d.writeRaw(d.value.Type().String())
+	return d.writeBlock(func() {
+		for _, idx := range fieldIdxs {
+			field := d.value.Type().Field(idx)
+			fieldVal := d.value.Field(idx)
+			dumper := d.clone(fieldVal)
+			d.indentedPrintf("%s: %s,\n", field.Name, dumper.String())
+		}
+	})
 }
 
 // writeChan writes channel info. format will be like `(chan int)(nil)`
@@ -238,28 +232,23 @@ func (d *dumper) writeMap() *dumper {
 		return d.printf("%s{}", d.value.Type().String())
 	}
 
-	pointer := d.value.Pointer()
-	if d.visitPointers[pointer] {
-		return d.writePointer()
+	if ret, ok := d.writeVisitedPointer(); ok {
+		return ret
 	}
-	d.visitPointers[pointer] = true
 
-	d.printf("%s{\n",
-		d.value.Type().String(),
-	)
+	d.writeRaw(d.value.Type().String())
 
-	d.depth++
-	for _, key := range sort.Keys(d.value.MapKeys()) {
-		val := d.value.MapIndex(key)
-		keyDumper := d.clone(key)
-		valDumper := d.clone(val)
-		d.indentedPrintf("%s:\t%s,\n",
-			keyDumper.String(),
-			valDumper.String(),
-		)
-	}
-	d.depth--
-	return d.writeIndentedRaw("}")
+	return d.writeBlock(func() {
+		for _, key := range sort.Keys(d.value.MapKeys()) {
+			val := d.value.MapIndex(key)
+			keyDumper := d.clone(key)
+			valDumper := d.clone(val)
+			d.indentedPrintf("%s:\t%s,\n",
+				keyDumper.String(),
+				valDumper.String(),
+			)
+		}
+	})
 }
 
 func (d *dumper) writeSlice() *dumper {
@@ -269,11 +258,9 @@ func (d *dumper) writeSlice() *dumper {
 		return d.printf("(%s)(nil)", d.value.Type().String())
 	}
 
-	pointer := d.value.Pointer()
-	if d.visitPointers[pointer] {
-		return d.writePointer()
+	if ret, ok := d.writeVisitedPointer(); ok {
+		return ret
 	}
-	d.visitPointers[pointer] = true
 
 	return d.writeArray()
 }
@@ -282,19 +269,18 @@ func (d *dumper) writeArray() *dumper {
 	if d.value.Len() == 0 {
 		return d.printf("%s{}", d.value.Type().String())
 	}
-	d.printf("%s{\n", d.value.Type().String())
-	return d.writeList().writeIndentedRaw("}")
+	d.writeRaw(d.value.Type().String())
+	return d.writeList()
 }
 
 func (d *dumper) writeList() *dumper {
-	d.depth++
-	for i := 0; i < d.value.Len(); i++ {
-		elem := d.value.Index(i)
-		dumper := d.clone(elem)
-		d.indentedPrintf("%s,\n", dumper.String())
-	}
-	d.depth--
-	return d
+	return d.writeBlock(func() {
+		for i := 0; i < d.value.Len(); i++ {
+			elem := d.value.Index(i)
+			dumper := d.clone(elem)
+			d.indentedPrintf("%s,\n", dumper.String())
+		}
+	})
 }
 
 func (d *dumper) writeInterface() *dumper {
@@ -361,6 +347,23 @@ func (d *dumper) writePointer() *dumper {
 		d.value.Type().String(),
 		d.value.Pointer(),
 	)
+}
+
+func (d *dumper) writeVisitedPointer() (*dumper, bool) {
+	pointer := d.value.Pointer()
+	if d.visitPointers[pointer] {
+		return d.writePointer(), true
+	}
+	d.visitPointers[pointer] = true
+	return d, false
+}
+
+func (d *dumper) writeBlock(f func()) *dumper {
+	d.writeRaw("{\n")
+	d.depth++
+	f()
+	d.depth--
+	return d.writeIndentedRaw("}")
 }
 
 func (d *dumper) writeBool(b bool) *dumper {
