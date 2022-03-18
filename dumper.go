@@ -12,11 +12,13 @@ import (
 	"github.com/Code-Hex/dd/internal/sort"
 )
 
+type dumpFunc func(reflect.Value, Writer)
+
 type options struct {
 	exportedOnly     bool
 	indentSize       int
 	uintFormat       UintFormat
-	convertibleTypes map[reflect.Type]DumpFunc
+	convertibleTypes map[reflect.Type]dumpFunc
 }
 
 func newDefaultOptions() *options {
@@ -24,7 +26,7 @@ func newDefaultOptions() *options {
 		exportedOnly:     false,
 		indentSize:       2,
 		uintFormat:       DecimalUint,
-		convertibleTypes: map[reflect.Type]DumpFunc{},
+		convertibleTypes: map[reflect.Type]dumpFunc{},
 	}
 }
 
@@ -37,7 +39,7 @@ type dumper struct {
 	// options
 	exportedOnly     bool
 	uintFormat       UintFormat
-	convertibleTypes map[reflect.Type]DumpFunc
+	convertibleTypes map[reflect.Type]dumpFunc
 }
 
 var _ interface {
@@ -192,7 +194,7 @@ func (d *dumper) writeStruct() *dumper {
 
 	for i := 0; i < numField; i++ {
 		field := d.value.Type().Field(i)
-		if d.exportedOnly && !isExported(field) {
+		if d.exportedOnly && !field.IsExported() {
 			continue
 		}
 		fieldIdxs = append(fieldIdxs, i)
