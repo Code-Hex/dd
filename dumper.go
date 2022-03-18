@@ -46,7 +46,7 @@ var _ interface {
 	fmt.Stringer
 } = (*dumper)(nil)
 
-func newDataDumper(obj interface{}, optFuncs ...OptionFunc) *dumper {
+func newDataDumper(obj interface{}, checkConcreteValue bool, optFuncs ...OptionFunc) *dumper {
 	buf := new(strings.Builder)
 	opts := newDefaultOptions()
 	// apply options
@@ -56,7 +56,7 @@ func newDataDumper(obj interface{}, optFuncs ...OptionFunc) *dumper {
 	return &dumper{
 		buf:              buf,
 		tw:               tabwriter.NewWriter(buf, opts.indentSize, 0, 1, ' ', 0),
-		value:            valueOf(obj),
+		value:            valueOf(obj, checkConcreteValue),
 		depth:            0,
 		visitPointers:    make(map[uintptr]bool),
 		exportedOnly:     opts.exportedOnly,
@@ -66,7 +66,7 @@ func newDataDumper(obj interface{}, optFuncs ...OptionFunc) *dumper {
 }
 
 func (d *dumper) clone(obj interface{}) *dumper {
-	child := newDataDumper(obj)
+	child := newDataDumper(obj, false)
 	child.depth = d.depth
 	child.visitPointers = d.visitPointers
 	child.exportedOnly = d.exportedOnly

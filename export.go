@@ -15,7 +15,7 @@ const (
 
 // Dump dumps specified data.
 func Dump(data interface{}, opts ...OptionFunc) string {
-	return newDataDumper(data, opts...).build().String()
+	return newDataDumper(data, true, opts...).build().String()
 }
 
 // Writer is a writer for dump string.
