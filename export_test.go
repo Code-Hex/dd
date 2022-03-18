@@ -6,6 +6,7 @@ import (
 	"math"
 	"mime/multipart"
 	"net/textproto"
+	"reflect"
 	"strconv"
 	"strings"
 	"testing"
@@ -263,6 +264,11 @@ func TestDumpBasic(t *testing.T) {
 			name: "nil func(int, int) bool",
 			v:    (func(int, int) bool)(nil),
 			want: "(func(int, int) bool)(nil)",
+		},
+		{
+			name: "reflect.Value{}",
+			v:    reflect.Value{},
+			want: "reflect.Value{\n  typ: (*reflect.rtype)(nil),\n  ptr: unsafe.Pointer(uintptr(0)),\n  flag: 0,\n}",
 		},
 	}
 	t.Run("typed", func(t *testing.T) {
