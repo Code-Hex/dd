@@ -129,7 +129,7 @@ func (d *dumper[T]) build() *dumper[T] {
 	case reflect.UnsafePointer:
 		d.printf("%s(uintptr(%v))", d.value.Type().String(), d.value.Pointer())
 		return d
-	case reflect.Ptr:
+	case reflect.Pointer:
 		d.writePtr()
 		return d
 	}
@@ -191,7 +191,7 @@ func (d *dumper[T]) writePtr() {
 	// dereference
 	deref := d.value.Elem()
 	kind := deref.Kind()
-	if kind == reflect.Ptr {
+	if kind == reflect.Pointer {
 		d.writePointer()
 		return
 	}
