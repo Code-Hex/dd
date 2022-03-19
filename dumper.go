@@ -30,11 +30,10 @@ func newDefaultOptions() *options {
 	}
 }
 
-type dumper[T any] struct {
+type dumper struct {
 	buf           *strings.Builder
 	tw            *tabwriter.Writer
 	value         reflect.Value
-	v             T
 	depth         int
 	visitPointers map[uintptr]bool
 	// options
@@ -45,20 +44,19 @@ type dumper[T any] struct {
 
 var _ interface {
 	fmt.Stringer
-} = (*dumper[any])(nil)
+} = (*dumper)(nil)
 
-func newDataDumper[T any](obj T, checkConcreteValue bool, optFuncs ...OptionFunc) *dumper[T] {
+func newDataDumper(obj any, checkConcreteValue bool, optFuncs ...OptionFunc) *dumper {
 	buf := new(strings.Builder)
 	opts := newDefaultOptions()
 	// apply options
 	for _, apply := range optFuncs {
 		apply(opts)
 	}
-	return &dumper[T]{
+	return &dumper{
 		buf:              buf,
 		tw:               tabwriter.NewWriter(buf, opts.indentSize, 0, 1, ' ', 0),
 		value:            valueOf(obj, checkConcreteValue),
-		v:                obj,
 		depth:            0,
 		visitPointers:    make(map[uintptr]bool),
 		exportedOnly:     opts.exportedOnly,
@@ -67,7 +65,7 @@ func newDataDumper[T any](obj T, checkConcreteValue bool, optFuncs ...OptionFunc
 	}
 }
 
-func clone[T, U any](d *dumper[T], obj U) *dumper[U] {
+func clone(d *dumper, obj any) *dumper {
 	child := newDataDumper(obj, false)
 	child.depth = d.depth
 	child.visitPointers = d.visitPointers
@@ -77,16 +75,16 @@ func clone[T, U any](d *dumper[T], obj U) *dumper[U] {
 	return child.build()
 }
 
-func (d *dumper[T]) indent() string {
+func (d *dumper) indent() string {
 	return strings.Repeat("\t", d.depth)
 }
 
-func (d *dumper[T]) String() string {
+func (d *dumper) String() string {
 	d.tw.Flush()
 	return d.buf.String()
 }
 
-func (d *dumper[T]) build() *dumper[T] {
+func (d *dumper) build() *dumper {
 	kind := d.value.Kind()
 	if kind == reflect.Invalid {
 		d.writeRaw("nil")
@@ -95,7 +93,7 @@ func (d *dumper[T]) build() *dumper[T] {
 
 	convertFunc, ok := d.convertibleTypes[d.value.Type()]
 	if ok {
-		convertFunc(d.value, &dumpWriter[T]{d})
+		convertFunc(d.value, &dumpWriter{d})
 		return d
 	}
 	switch kind {
@@ -137,6 +135,7 @@ func (d *dumper[T]) build() *dumper[T] {
 		d.writeNumber()
 		return d
 	}
+	// NOTE(codehex): perhaps this block is unnecessary
 	if d.value.CanInterface() {
 		d.printf("%v", d.value.Interface())
 		return d
@@ -145,7 +144,7 @@ func (d *dumper[T]) build() *dumper[T] {
 	return d
 }
 
-func (d *dumper[T]) writeFunc() {
+func (d *dumper) writeFunc() {
 	if d.value.IsNil() {
 		d.printf("(%s)(nil)", d.value.Type().String())
 		return
@@ -179,7 +178,7 @@ func (d *dumper[T]) writeFunc() {
 	})
 }
 
-func (d *dumper[T]) writePtr() {
+func (d *dumper) writePtr() {
 	if d.value.IsNil() {
 		d.printf("(%s)(nil)", d.value.Type())
 		return
@@ -201,14 +200,14 @@ func (d *dumper[T]) writePtr() {
 	}
 	convertFunc, ok := d.convertibleTypes[deref.Type()]
 	if ok {
-		convertFunc(d.value, &dumpWriter[T]{d})
+		convertFunc(d.value, &dumpWriter{d})
 		return
 	}
 	d.printf("&%s", clone(d, deref).String())
 	return
 }
 
-func (d *dumper[T]) writeStruct() {
+func (d *dumper) writeStruct() {
 	numField := d.value.NumField()
 
 	// records the i'th field
@@ -238,7 +237,7 @@ func (d *dumper[T]) writeStruct() {
 }
 
 // writeChan writes channel info. format will be like `(chan int)(nil)`
-func (d *dumper[T]) writeChan() {
+func (d *dumper) writeChan() {
 	if d.value.IsNil() {
 		d.printf("(%s)(nil)", d.value.Type().String())
 		return
@@ -246,7 +245,7 @@ func (d *dumper[T]) writeChan() {
 	d.writePointer()
 }
 
-func (d *dumper[T]) writeMap() {
+func (d *dumper) writeMap() {
 	// We must check if it is nil before checking length.
 	// because the length of nil map is 0.
 	if d.value.IsNil() {
@@ -277,7 +276,7 @@ func (d *dumper[T]) writeMap() {
 	})
 }
 
-func (d *dumper[T]) writeSlice() {
+func (d *dumper) writeSlice() {
 	// We must check if it is nil before checking length.
 	// because the length of nil slice is 0.
 	if d.value.IsNil() {
@@ -292,7 +291,7 @@ func (d *dumper[T]) writeSlice() {
 	d.writeArray()
 }
 
-func (d *dumper[T]) writeArray() {
+func (d *dumper) writeArray() {
 	if d.value.Len() == 0 {
 		d.printf("%s{}", d.value.Type().String())
 		return
@@ -301,7 +300,7 @@ func (d *dumper[T]) writeArray() {
 	d.writeList()
 }
 
-func (d *dumper[T]) writeList() {
+func (d *dumper) writeList() {
 	d.writeBlock(func() {
 		for i := 0; i < d.value.Len(); i++ {
 			elem := d.value.Index(i)
@@ -311,7 +310,7 @@ func (d *dumper[T]) writeList() {
 	})
 }
 
-func (d *dumper[T]) writeInterface() {
+func (d *dumper) writeInterface() {
 	elem := d.value.Elem()
 	if elem.IsValid() {
 		d.writeRaw(clone(d, elem).String())
@@ -320,7 +319,7 @@ func (d *dumper[T]) writeInterface() {
 	d.writeRaw("nil")
 }
 
-func (d *dumper[T]) writeNumber() {
+func (d *dumper) writeNumber() {
 	switch d.value.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 		d.printf("%d", d.value.Int())
@@ -341,7 +340,7 @@ func (d *dumper[T]) writeNumber() {
 	panic(fmt.Errorf("unreachable type: %s", d.value.Type()))
 }
 
-func (d *dumper[T]) writeUnsignedInt() {
+func (d *dumper) writeUnsignedInt() {
 	switch d.value.Kind() {
 	case reflect.Uint8:
 		switch d.uintFormat {
@@ -384,7 +383,7 @@ func (d *dumper[T]) writeUnsignedInt() {
 	return
 }
 
-func (d *dumper[T]) writePointer() {
+func (d *dumper) writePointer() {
 	d.printf(
 		"(%s)(unsafe.Pointer(uintptr(0x%x)))",
 		d.value.Type().String(),
@@ -393,7 +392,7 @@ func (d *dumper[T]) writePointer() {
 	return
 }
 
-func (d *dumper[T]) writeVisitedPointer() bool {
+func (d *dumper) writeVisitedPointer() bool {
 	pointer := d.value.Pointer()
 	if d.visitPointers[pointer] {
 		d.writePointer()
@@ -403,7 +402,7 @@ func (d *dumper[T]) writeVisitedPointer() bool {
 	return false
 }
 
-func (d *dumper[T]) writeBlock(f func()) {
+func (d *dumper) writeBlock(f func()) {
 	d.writeRaw("{\n")
 	d.depth++
 	f()
@@ -411,46 +410,46 @@ func (d *dumper[T]) writeBlock(f func()) {
 	d.writeIndentedRaw("}")
 }
 
-func (d *dumper[T]) writeBool(b bool) {
+func (d *dumper) writeBool(b bool) {
 	d.writeRaw(strconv.FormatBool(b))
 }
 
-func (d *dumper[T]) writeString(s string) {
+func (d *dumper) writeString(s string) {
 	d.writeRaw(strconv.Quote(s))
 }
 
-func (d *dumper[T]) writeIndent() {
+func (d *dumper) writeIndent() {
 	if d.depth == 0 {
 		return
 	}
 	d.writeRaw(d.indent())
 }
 
-func (d *dumper[T]) writeIndentedRaw(s string) {
+func (d *dumper) writeIndentedRaw(s string) {
 	d.writeIndent()
 	d.writeRaw(s)
 }
 
-func (d *dumper[T]) indentedPrintf(format string, a ...interface{}) {
+func (d *dumper) indentedPrintf(format string, a ...interface{}) {
 	d.writeIndent()
 	d.printf(format, a...)
 }
 
 // writeRaw appends the contents of s to p's buffer.
-func (d *dumper[T]) writeRaw(s string) {
+func (d *dumper) writeRaw(s string) {
 	io.WriteString(d.tw, s)
 }
 
-func (d *dumper[T]) printf(format string, a ...interface{}) {
+func (d *dumper) printf(format string, a ...interface{}) {
 	fmt.Fprintf(d.tw, format, a...)
 }
 
-type dumpWriter[T any] struct{ *dumper[T] }
+type dumpWriter struct{ *dumper }
 
-var _ Writer = (*dumpWriter[any])(nil)
+var _ Writer = (*dumpWriter)(nil)
 
-func (d *dumpWriter[T]) Write(s string) { d.dumper.writeRaw(s) }
-func (d *dumpWriter[T]) WriteBlock(s string) {
+func (d *dumpWriter) Write(s string) { d.dumper.writeRaw(s) }
+func (d *dumpWriter) WriteBlock(s string) {
 	d.dumper.writeRaw("{\n")
 	d.dumper.depth++
 	scanner := bufio.NewScanner(strings.NewReader(s))
