@@ -409,17 +409,14 @@ func (d *dumper[T]) writeBlock(f func()) {
 	f()
 	d.depth--
 	d.writeIndentedRaw("}")
-	return
 }
 
 func (d *dumper[T]) writeBool(b bool) {
 	d.writeRaw(strconv.FormatBool(b))
-	return
 }
 
 func (d *dumper[T]) writeString(s string) {
 	d.writeRaw(strconv.Quote(s))
-	return
 }
 
 func (d *dumper[T]) writeIndent() {
@@ -427,30 +424,25 @@ func (d *dumper[T]) writeIndent() {
 		return
 	}
 	d.writeRaw(d.indent())
-	return
 }
 
 func (d *dumper[T]) writeIndentedRaw(s string) {
 	d.writeIndent()
 	d.writeRaw(s)
-	return
 }
 
 func (d *dumper[T]) indentedPrintf(format string, a ...interface{}) {
 	d.writeIndent()
 	d.printf(format, a...)
-	return
 }
 
 // writeRaw appends the contents of s to p's buffer.
 func (d *dumper[T]) writeRaw(s string) {
 	io.WriteString(d.tw, s)
-	return
 }
 
 func (d *dumper[T]) printf(format string, a ...interface{}) {
 	fmt.Fprintf(d.tw, format, a...)
-	return
 }
 
 type dumpWriter[T any] struct{ *dumper[T] }
