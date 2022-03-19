@@ -10,7 +10,7 @@ import (
 func TestWithDumpFunc(t *testing.T) {
 	cases := []struct {
 		name       string
-		v          interface{}
+		v          any
 		want       string
 		dumpOption OptionFunc
 	}{
