@@ -14,7 +14,7 @@ const (
 )
 
 // Dump dumps specified data.
-func Dump(data interface{}, opts ...OptionFunc) string {
+func Dump(data any, opts ...OptionFunc) string {
 	return newDataDumper(data, true, opts...).build().String()
 }
 
