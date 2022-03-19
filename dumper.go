@@ -288,8 +288,7 @@ func (d *dumper[T]) writeList() *dumper[T] {
 func (d *dumper[T]) writeInterface() *dumper[T] {
 	elem := d.value.Elem()
 	if elem.IsValid() {
-		d.value = elem
-		return d.build()
+		return d.writeRaw(clone(d, elem).String())
 	}
 	return d.writeRaw("nil")
 }
