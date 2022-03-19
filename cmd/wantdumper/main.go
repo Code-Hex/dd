@@ -31,7 +31,7 @@ func run(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("failed to read %q: %w", jsonFile, err)
 		}
-		var unmarshaled interface{}
+		var unmarshaled any
 		if err := json.Unmarshal(content, &unmarshaled); err != nil {
 			return fmt.Errorf("failed to unmarshal %q: %w", jsonFile, err)
 		}

@@ -430,7 +430,7 @@ func (d *dumper) writeIndentedRaw(s string) {
 	d.writeRaw(s)
 }
 
-func (d *dumper) indentedPrintf(format string, a ...interface{}) {
+func (d *dumper) indentedPrintf(format string, a ...any) {
 	d.writeIndent()
 	d.printf(format, a...)
 }
@@ -440,7 +440,7 @@ func (d *dumper) writeRaw(s string) {
 	io.WriteString(d.tw, s)
 }
 
-func (d *dumper) printf(format string, a ...interface{}) {
+func (d *dumper) printf(format string, a ...any) {
 	fmt.Fprintf(d.tw, format, a...)
 }
 

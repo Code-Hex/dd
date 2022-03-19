@@ -34,7 +34,7 @@ func TestComplex(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			var unmarshaled interface{}
+			var unmarshaled any
 			if err := json.Unmarshal(content, &unmarshaled); err != nil {
 				t.Fatal(err)
 			}

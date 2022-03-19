@@ -18,7 +18,7 @@ import (
 func TestDumpBasic(t *testing.T) {
 	cases := []struct {
 		name string
-		v    interface{}
+		v    any
 		want string
 	}{
 		{
@@ -156,7 +156,7 @@ func TestDumpBasic(t *testing.T) {
 		},
 		{
 			name: "array [2]interface {}{}",
-			v:    [2]interface{}{1, "hello"},
+			v:    [2]any{1, "hello"},
 			want: "[2]interface {}{\n  1,\n  \"hello\",\n}",
 			// [2]interface {}{
 			//   1, // 2 spaces indent
@@ -184,7 +184,7 @@ func TestDumpBasic(t *testing.T) {
 		},
 		{
 			name: "slice []interface {}{}",
-			v:    []interface{}{1, "hello"},
+			v:    []any{1, "hello"},
 			want: "[]interface {}{\n  1,\n  \"hello\",\n}",
 			// []int{
 			//   1, // 2 spaces indent
@@ -290,7 +290,7 @@ func TestDumpBasic(t *testing.T) {
 		for _, tc := range cases {
 			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
-				got := dd.Dump(interface{}(tc.v))
+				got := dd.Dump(any(tc.v))
 				if tc.want != got {
 					t.Fatalf("want %q, but got %q", tc.want, got)
 				}
@@ -306,7 +306,7 @@ func TestDumpBasic(t *testing.T) {
 func TestPointer(t *testing.T) {
 	cases := []struct {
 		name string
-		v    interface{}
+		v    any
 		want string
 	}{
 		{
@@ -346,7 +346,7 @@ func TestPointer(t *testing.T) {
 		},
 		{
 			name: "pointer of pointer of struct",
-			v: func() interface{} {
+			v: func() any {
 				a := &struct{ age int }{age: 10}
 				return &a
 			}(),
@@ -392,7 +392,7 @@ func TestPointer(t *testing.T) {
 		for _, tc := range cases {
 			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
-				got := dd.Dump(interface{}(tc.v))
+				got := dd.Dump(any(tc.v))
 				if !strings.Contains(got, tc.want) {
 					t.Fatalf("want %q, but got %q", tc.want, got)
 				}
@@ -435,7 +435,7 @@ func TestWithExportedOnly(t *testing.T) {
 func TestWithUintFormat(t *testing.T) {
 	cases := []struct {
 		name       string
-		v          interface{}
+		v          any
 		want       string
 		dumpOption dd.OptionFunc
 	}{
@@ -504,12 +504,12 @@ func TestWithUintFormat(t *testing.T) {
 func TestCircularRefs(t *testing.T) {
 	cases := []struct {
 		name string
-		v    interface{}
+		v    any
 		want string
 	}{
 		{
 			name: "struct",
-			v: func() interface{} {
+			v: func() any {
 				type A struct {
 					a *A
 				}
@@ -521,8 +521,8 @@ func TestCircularRefs(t *testing.T) {
 		},
 		{
 			name: "map",
-			v: func() interface{} {
-				a := map[struct{}]interface{}{}
+			v: func() any {
+				a := map[struct{}]any{}
 				a[struct{}{}] = a
 				return a
 			}(),
@@ -530,8 +530,8 @@ func TestCircularRefs(t *testing.T) {
 		},
 		{
 			name: "slice",
-			v: func() interface{} {
-				a := make([]interface{}, 1)
+			v: func() any {
+				a := make([]any, 1)
 				a[0] = a
 				return a
 			}(),
