@@ -2,6 +2,7 @@ package dd_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"go/parser"
 	"io/ioutil"
 	"os"
@@ -17,29 +18,51 @@ import (
 
 var addressReplaceRegexp = regexp.MustCompile(`uintptr\((0x[\da-f]+)\)`)
 
-func TestComplex(t *testing.T) {
+type Entry struct {
+	name  string
+	value any
+	want  []byte
+}
+
+func makeEntries() ([]Entry, error) {
 	entries, err := os.ReadDir("testdata")
+	if err != nil {
+		return nil, fmt.Errorf("failed to read directory: %w", err)
+	}
+	ret := make([]Entry, len(entries))
+	for i, entry := range entries {
+		jsonFile := filepath.Join("testdata", entry.Name(), "data.json")
+		content, err := ioutil.ReadFile(jsonFile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read file %q: %w", jsonFile, err)
+		}
+		wantFile := filepath.Join("testdata", entry.Name(), "want.txt")
+		want, err := ioutil.ReadFile(wantFile)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read file %q: %w", wantFile, err)
+		}
+		var unmarshaled any
+		if err := json.Unmarshal(content, &unmarshaled); err != nil {
+			return nil, fmt.Errorf("failed to unmarshal: %w", err)
+		}
+		ret[i] = Entry{
+			name:  entry.Name(),
+			value: unmarshaled,
+			want:  want,
+		}
+	}
+	return ret, nil
+}
+
+func TestComplex(t *testing.T) {
+	entries, err := makeEntries()
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, entry := range entries {
-		t.Run(entry.Name(), func(t *testing.T) {
-			jsonFile := filepath.Join("testdata", entry.Name(), "data.json")
-			content, err := ioutil.ReadFile(jsonFile)
-			if err != nil {
-				t.Fatal(err)
-			}
-			wantFile := filepath.Join("testdata", entry.Name(), "want.txt")
-			want, err := ioutil.ReadFile(wantFile)
-			if err != nil {
-				t.Fatal(err)
-			}
-			var unmarshaled any
-			if err := json.Unmarshal(content, &unmarshaled); err != nil {
-				t.Fatal(err)
-			}
-
-			got := dd.Dump(unmarshaled)
+		entry := entry
+		t.Run(entry.name, func(t *testing.T) {
+			got := dd.Dump(entry.value)
 			// check syntax is valid
 			if _, err := parser.ParseExpr(got); err != nil {
 				t.Log(got)
@@ -47,11 +70,37 @@ func TestComplex(t *testing.T) {
 			}
 
 			// replace addresses
-			replacedWant := addressReplaceRegexp.ReplaceAll(want, []byte("0x0"))
+			replacedWant := addressReplaceRegexp.ReplaceAll(entry.want, []byte("0x0"))
 			replacedGot := addressReplaceRegexp.ReplaceAllString(got, "0x0")
 
 			if diff := cmp.Diff(string(replacedWant), replacedGot); diff != "" {
 				t.Fatalf("(-want, +got)\n%s", diff)
+			}
+		})
+	}
+}
+
+// 2022-03-20
+// goos: darwin
+// goarch: arm64
+// pkg: github.com/Code-Hex/dd
+// BenchmarkComplex/simple-8         	   45826	     25505 ns/op	   18303 B/op	     405 allocs/op
+// BenchmarkComplex/twitter-search-adaptive-8         	      25	  47194118 ns/op	45719134 B/op	  243727 allocs/op
+// PASS
+// ok  	github.com/Code-Hex/dd	3.076s
+
+func BenchmarkComplex(b *testing.B) {
+	entries, err := makeEntries()
+	if err != nil {
+		b.Fatal(err)
+	}
+	for _, entry := range entries {
+		entry := entry
+		b.Run(entry.name, func(b *testing.B) {
+			b.ResetTimer()
+			b.ReportAllocs()
+			for i := 0; i < b.N; i++ {
+				dd.Dump(entry.value)
 			}
 		})
 	}
