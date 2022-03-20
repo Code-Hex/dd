@@ -84,8 +84,8 @@ func TestComplex(t *testing.T) {
 // goos: darwin
 // goarch: arm64
 // pkg: github.com/Code-Hex/dd
-// BenchmarkComplex/simple-8         	   34816	     32958 ns/op	   31119 B/op	     664 allocs/op
-// BenchmarkComplex/twitter-search-adaptive-8         	      19	  59854191 ns/op	68459998 B/op	  599905 allocs/op
+// BenchmarkComplex/simple-8         	   45826	     25505 ns/op	   18303 B/op	     405 allocs/op
+// BenchmarkComplex/twitter-search-adaptive-8         	      25	  47194118 ns/op	45719134 B/op	  243727 allocs/op
 // PASS
 // ok  	github.com/Code-Hex/dd	3.076s
 
