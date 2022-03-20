@@ -7,6 +7,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"sync"
 	"text/tabwriter"
 
 	"github.com/Code-Hex/dd/internal/sort"
@@ -31,11 +32,13 @@ func newDefaultOptions() *options {
 }
 
 type dumper struct {
-	buf           *strings.Builder
-	tw            *tabwriter.Writer
-	value         reflect.Value
-	depth         int
-	visitPointers map[uintptr]bool
+	buf              *strings.Builder
+	tw               *tabwriter.Writer
+	value            reflect.Value
+	depth            int
+	visitPointers    map[uintptr]bool
+	cachedZeroValues map[reflect.Type]string
+	clonePool        sync.Pool
 	// options
 	exportedOnly     bool
 	uintFormat       UintFormat
@@ -46,33 +49,56 @@ var _ interface {
 	fmt.Stringer
 } = (*dumper)(nil)
 
-func newDataDumper(obj any, checkConcreteValue bool, optFuncs ...OptionFunc) *dumper {
-	buf := new(strings.Builder)
+func newDataDumper(obj any, optFuncs ...OptionFunc) *dumper {
 	opts := newDefaultOptions()
 	// apply options
 	for _, apply := range optFuncs {
 		apply(opts)
 	}
-	return &dumper{
-		buf:              buf,
-		tw:               tabwriter.NewWriter(buf, opts.indentSize, 0, 1, ' ', 0),
-		value:            valueOf(obj, checkConcreteValue),
-		depth:            0,
-		visitPointers:    make(map[uintptr]bool),
-		exportedOnly:     opts.exportedOnly,
-		uintFormat:       opts.uintFormat,
-		convertibleTypes: opts.convertibleTypes,
+	clonePool := sync.Pool{
+		New: func() any {
+			buf := new(strings.Builder)
+			return &dumper{
+				buf: buf,
+				tw:  tabwriter.NewWriter(buf, opts.indentSize, 0, 1, ' ', 0),
+			}
+		},
 	}
+	ret := clonePool.Get().(*dumper)
+	ret.value = valueOf(obj, true)
+	ret.clonePool = clonePool
+	ret.visitPointers = make(map[uintptr]bool)
+	ret.cachedZeroValues = zeroPrimitives
+	ret.clonePool = clonePool
+	ret.exportedOnly = opts.exportedOnly
+	ret.uintFormat = opts.uintFormat
+	ret.convertibleTypes = opts.convertibleTypes
+	return ret
 }
 
-func clone(d *dumper, obj any) *dumper {
-	child := newDataDumper(obj, false)
+func (d *dumper) clone(obj any) *dumper {
+	child := d.clonePool.Get().(*dumper)
+	child.value = valueOf(obj, false)
 	child.depth = d.depth
 	child.visitPointers = d.visitPointers
+	child.cachedZeroValues = d.cachedZeroValues
+	child.clonePool = d.clonePool
 	child.exportedOnly = d.exportedOnly
 	child.uintFormat = d.uintFormat
 	child.convertibleTypes = d.convertibleTypes
-	return child.build()
+	return child
+}
+
+func dumpclone(d *dumper, obj any) string {
+	cloned := d.clone(obj).build()
+	ret := cloned.String()
+	cloned.release()
+	return ret
+}
+
+func (d *dumper) release() {
+	d.buf.Reset()
+	d.clonePool.Put(d)
 }
 
 func (d *dumper) indent() string {
@@ -169,13 +195,21 @@ func (d *dumper) writeFunc() {
 		zeroValues := make([]string, 0, numout)
 		for i := 0; i < numout; i++ {
 			outTyp := typ.Out(i)
-			zeroValues = append(
-				zeroValues,
-				clone(d, reflect.Zero(outTyp)).String(),
-			)
+			zeroValues = append(zeroValues, d.zeroValue(outTyp))
 		}
 		d.indentedPrintf("return %s\n", strings.Join(zeroValues, ", "))
 	})
+}
+
+//go:generate go run cmd/zero/main.go
+
+func (d *dumper) zeroValue(rt reflect.Type) string {
+	if cached, ok := d.cachedZeroValues[rt]; ok {
+		return cached
+	}
+	zero := dumpclone(d, reflect.Zero(rt))
+	d.cachedZeroValues[rt] = zero
+	return zero
 }
 
 func (d *dumper) writePtr() {
@@ -203,7 +237,7 @@ func (d *dumper) writePtr() {
 		convertFunc(d.value, &dumpWriter{d})
 		return
 	}
-	d.printf("&%s", clone(d, deref).String())
+	d.printf("&%s", dumpclone(d, deref))
 	return
 }
 
@@ -230,8 +264,7 @@ func (d *dumper) writeStruct() {
 		for _, idx := range fieldIdxs {
 			field := d.value.Type().Field(idx)
 			fieldVal := d.value.Field(idx)
-			dumper := clone(d, fieldVal)
-			d.indentedPrintf("%s: %s,\n", field.Name, dumper.String())
+			d.indentedPrintf("%s: %s,\n", field.Name, dumpclone(d, fieldVal))
 		}
 	})
 }
@@ -264,13 +297,12 @@ func (d *dumper) writeMap() {
 	d.writeRaw(d.value.Type().String())
 
 	d.writeBlock(func() {
-		for _, key := range sort.Keys(d.value.MapKeys()) {
+		keys := sort.Keys(d.value.MapKeys())
+		for _, key := range keys {
 			val := d.value.MapIndex(key)
-			keyDumper := clone(d, key)
-			valDumper := clone(d, val)
 			d.indentedPrintf("%s:\t%s,\n",
-				keyDumper.String(),
-				valDumper.String(),
+				dumpclone(d, key),
+				dumpclone(d, val),
 			)
 		}
 	})
@@ -304,8 +336,7 @@ func (d *dumper) writeList() {
 	d.writeBlock(func() {
 		for i := 0; i < d.value.Len(); i++ {
 			elem := d.value.Index(i)
-			dumper := clone(d, elem)
-			d.indentedPrintf("%s,\n", dumper.String())
+			d.indentedPrintf("%s,\n", dumpclone(d, elem))
 		}
 	})
 }
@@ -313,7 +344,7 @@ func (d *dumper) writeList() {
 func (d *dumper) writeInterface() {
 	elem := d.value.Elem()
 	if elem.IsValid() {
-		d.writeRaw(clone(d, elem).String())
+		d.writeRaw(dumpclone(d, elem))
 		return
 	}
 	d.writeRaw("nil")
