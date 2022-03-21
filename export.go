@@ -1,5 +1,7 @@
 package dd
 
+import "reflect"
+
 type UintFormat int
 
 const (
@@ -48,5 +50,15 @@ func WithIndent(indent int) OptionFunc {
 func WithUintFormat(mode UintFormat) OptionFunc {
 	return func(o *options) {
 		o.uintFormat = mode
+	}
+}
+
+// WithListBreakLineSize is an option to specify the number of elements to break lines
+// when dumped a listing (slice, array) of a given type.
+// The number must be more than 1 otherwise treats as 1.
+func WithListBreakLineSize(typ any, size int) OptionFunc {
+	return func(o *options) {
+		tmp := reflect.TypeOf(typ)
+		o.listGroupingSize[tmp] = size
 	}
 }

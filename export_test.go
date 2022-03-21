@@ -552,3 +552,85 @@ func TestCircularRefs(t *testing.T) {
 		})
 	}
 }
+
+func TestWithListBreakLineSize(t *testing.T) {
+	cases := []struct {
+		name       string
+		v          any
+		want       string
+		dumpOption dd.OptionFunc
+	}{
+		{
+			name:       "slice break line at 1",
+			v:          []int{1, 2, 3, 4},
+			want:       "[]int{\n    1,\n    2,\n    3,\n    4,\n}",
+			dumpOption: dd.WithListBreakLineSize(int(0), 1),
+		},
+		{
+			name:       "slice break line at 2",
+			v:          []int{1, 2, 3, 4},
+			want:       "[]int{\n    1, 2,\n    3, 4,\n}",
+			dumpOption: dd.WithListBreakLineSize(int(0), 2),
+		},
+		{
+			name:       "slice break line at 3",
+			v:          []int{1, 2, 3, 4},
+			want:       "[]int{\n    1, 2, 3,\n    4,\n}",
+			dumpOption: dd.WithListBreakLineSize(int(0), 3),
+		},
+		{
+			name:       "slice break line at 4",
+			v:          []int{1, 2, 3, 4},
+			want:       "[]int{\n    1, 2, 3, 4,\n}",
+			dumpOption: dd.WithListBreakLineSize(int(0), 4),
+		},
+		{
+			name:       "slice break line at 5",
+			v:          []int{1, 2, 3, 4},
+			want:       "[]int{\n    1, 2, 3, 4,\n}",
+			dumpOption: dd.WithListBreakLineSize(int(0), 5),
+		},
+		{
+			name:       "array break line at 1",
+			v:          [4]int{1, 2, 3, 4},
+			want:       "[4]int{\n    1,\n    2,\n    3,\n    4,\n}",
+			dumpOption: dd.WithListBreakLineSize(int(0), 1),
+		},
+		{
+			name:       "array break line at 2",
+			v:          [4]int{1, 2, 3, 4},
+			want:       "[4]int{\n    1, 2,\n    3, 4,\n}",
+			dumpOption: dd.WithListBreakLineSize(int(0), 2),
+		},
+		{
+			name:       "array break line at 3",
+			v:          [4]int{1, 2, 3, 4},
+			want:       "[4]int{\n    1, 2, 3,\n    4,\n}",
+			dumpOption: dd.WithListBreakLineSize(int(0), 3),
+		},
+		{
+			name:       "array break line at 4",
+			v:          [4]int{1, 2, 3, 4},
+			want:       "[4]int{\n    1, 2, 3, 4,\n}",
+			dumpOption: dd.WithListBreakLineSize(int(0), 4),
+		},
+		{
+			name:       "array break line at 5",
+			v:          [4]int{1, 2, 3, 4},
+			want:       "[4]int{\n    1, 2, 3, 4,\n}",
+			dumpOption: dd.WithListBreakLineSize(int(0), 5),
+		},
+	}
+	for _, tc := range cases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			got := dd.Dump(tc.v, tc.dumpOption, dd.WithIndent(4))
+			if tc.want != got {
+				t.Fatalf("want %q, but got %q", tc.want, got)
+			}
+			if _, err := parser.ParseExpr(got); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
