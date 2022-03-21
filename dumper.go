@@ -20,6 +20,7 @@ type options struct {
 	indentSize       int
 	uintFormat       UintFormat
 	convertibleTypes map[reflect.Type]dumpFunc
+	listGroupingSize map[reflect.Type]int
 }
 
 func newDefaultOptions() *options {
@@ -28,6 +29,7 @@ func newDefaultOptions() *options {
 		indentSize:       2,
 		uintFormat:       DecimalUint,
 		convertibleTypes: map[reflect.Type]dumpFunc{},
+		listGroupingSize: map[reflect.Type]int{},
 	}
 }
 
@@ -43,6 +45,7 @@ type dumper struct {
 	exportedOnly     bool
 	uintFormat       UintFormat
 	convertibleTypes map[reflect.Type]dumpFunc
+	listGroupingSize map[reflect.Type]int
 }
 
 var _ interface {
@@ -73,6 +76,7 @@ func newDataDumper(obj any, optFuncs ...OptionFunc) *dumper {
 	ret.exportedOnly = opts.exportedOnly
 	ret.uintFormat = opts.uintFormat
 	ret.convertibleTypes = opts.convertibleTypes
+	ret.listGroupingSize = opts.listGroupingSize
 	return ret
 }
 
@@ -86,6 +90,7 @@ func (d *dumper) clone(obj any) *dumper {
 	child.exportedOnly = d.exportedOnly
 	child.uintFormat = d.uintFormat
 	child.convertibleTypes = d.convertibleTypes
+	child.listGroupingSize = d.listGroupingSize
 	return child
 }
 
@@ -334,9 +339,27 @@ func (d *dumper) writeArray() {
 
 func (d *dumper) writeList() {
 	d.writeBlock(func() {
+		typ := d.value.Type().Elem()
+		size := 1
+		if s, ok := d.listGroupingSize[typ]; ok && s > 1 {
+			size = s
+		}
+		var breakLine bool
 		for i := 0; i < d.value.Len(); i++ {
 			elem := d.value.Index(i)
-			d.indentedPrintf("%s,\n", dumpclone(d, elem))
+			mod := (i + 1) % size
+			breakLine = mod == 0
+			if size == 1 || mod == 1 {
+				d.indentedPrintf("%s,", dumpclone(d, elem))
+			} else {
+				d.printf(" %s,", dumpclone(d, elem))
+			}
+			if breakLine {
+				d.writeRaw("\n")
+			}
+		}
+		if !breakLine {
+			d.writeRaw("\n")
 		}
 	})
 }
