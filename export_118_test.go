@@ -1,6 +1,7 @@
 package dd
 
 import (
+	"encoding/json"
 	"go/parser"
 	"math/big"
 	"testing"
@@ -33,16 +34,10 @@ func TestWithDumpFunc(t *testing.T) {
 			dumpOption: WithBigFloat(),
 		},
 		{
-			name:       "[]byte",
-			v:          []byte("Hello, World"),
-			want:       "[]byte{\n  0x48,\n  0x65,\n  0x6c,\n  0x6c,\n  0x6f,\n  0x2c,\n  0x20,\n  0x57,\n  0x6f,\n  0x72,\n  0x6c,\n  0x64,\n}",
-			dumpOption: WithBytes(HexUint),
-		},
-		{
-			name:       "[]byte binary",
-			v:          []byte{0},
-			want:       "[]byte{\n  0b00000000,\n}",
-			dumpOption: WithBytes(BinaryUint),
+			name:       "json.RawMessage",
+			v:          json.RawMessage(`{"hello":"world"}`),
+			want:       "json.RawMessage(`{\"hello\":\"world\"}`)",
+			dumpOption: WithJSONRawMessage(),
 		},
 	}
 	for _, tc := range cases {

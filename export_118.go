@@ -1,6 +1,7 @@
 package dd
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/big"
 	"reflect"
@@ -22,22 +23,16 @@ func WithDumpFunc[T any](f DumpFunc[T]) OptionFunc {
 	}
 }
 
-// WithBytes is a wrapper of WithDumpFunc for []byte.
-// Dumps the byte slice values instead of displaying uint8 slice.
-func WithBytes(mode UintFormat) OptionFunc {
+// WithJSONRawMessage is a wrapper of WithDumpFunc for json.RawMessage.
+// Dumps a raw JSON string.
+func WithJSONRawMessage() OptionFunc {
 	return WithDumpFunc(
-		func(v []byte, w Writer) {
-			w.Write("[]byte")
-			var buf strings.Builder
-			for _, b := range v {
-				switch mode {
-				case BinaryUint:
-					fmt.Fprintf(&buf, "0b%08b,\n", b)
-				default:
-					fmt.Fprintf(&buf, "0x%02x,\n", b)
-				}
-			}
-			w.WriteBlock(buf.String())
+		func(v json.RawMessage, w Writer) {
+			w.Write("json.RawMessage(")
+			w.Write("`")
+			w.Write(string(v))
+			w.Write("`")
+			w.Write(")")
 		},
 	)
 }
