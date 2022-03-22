@@ -18,7 +18,9 @@ func WithRichBytes() dd.OptionFunc {
 		func(v []byte, w dd.Writer) {
 			dumpLines := strings.Split(hex.Dump(v), "\n")
 			for i := 0; i < len(dumpLines); i++ {
-				dumpLines[i] = "// " + dumpLines[i]
+				if dumpLines[i] != "" {
+					dumpLines[i] = "// " + dumpLines[i]
+				}
 			}
 			var buf strings.Builder
 			buf.WriteString("return []byte{")

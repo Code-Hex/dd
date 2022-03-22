@@ -45,7 +45,7 @@ func TestWithDumpFunc(t *testing.T) {
 		{
 			name:       "[]byte",
 			v:          []byte("Hello, World"),
-			want:       "func() []byte {\n  // 00000000  48 65 6c 6c 6f 2c 20 57  6f 72 6c 64              |Hello, World|\n  // \n  return []byte{0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64}\n}()",
+			want:       "func() []byte {\n  // 00000000  48 65 6c 6c 6f 2c 20 57  6f 72 6c 64              |Hello, World|\n  \n  return []byte{0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64}\n}()",
 			dumpOption: df.WithRichBytes(),
 		},
 	}
