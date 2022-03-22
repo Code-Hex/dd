@@ -32,6 +32,7 @@ func WithRichBytes() dd.OptionFunc {
 			dumpLines = append(dumpLines, buf.String())
 			w.Write("func() []byte ")
 			w.WriteBlock(strings.Join(dumpLines, "\n"))
+			w.Write("()")
 		},
 	)
 }
@@ -68,6 +69,7 @@ func WithTime(format string) dd.OptionFunc {
 					"\n",
 				),
 			)
+			w.Write("()")
 		},
 	)
 }
@@ -91,6 +93,7 @@ func WithBigInt() dd.OptionFunc {
 					"\n",
 				),
 			)
+			w.Write("()")
 		},
 	)
 }
@@ -114,6 +117,7 @@ func WithBigFloat() dd.OptionFunc {
 					"\n",
 				),
 			)
+			w.Write("()")
 		},
 	)
 }
