@@ -52,14 +52,14 @@ var _ interface {
 	fmt.Stringer
 } = (*dumper)(nil)
 
-func newDataDumper(obj any, optFuncs ...OptionFunc) *dumper {
+func newDataDumper(obj interface{}, optFuncs ...OptionFunc) *dumper {
 	opts := newDefaultOptions()
 	// apply options
 	for _, apply := range optFuncs {
 		apply(opts)
 	}
 	clonePool := sync.Pool{
-		New: func() any {
+		New: func() interface{} {
 			buf := new(strings.Builder)
 			return &dumper{
 				buf: buf,
@@ -80,7 +80,7 @@ func newDataDumper(obj any, optFuncs ...OptionFunc) *dumper {
 	return ret
 }
 
-func (d *dumper) clone(obj any) *dumper {
+func (d *dumper) clone(obj interface{}) *dumper {
 	child := d.clonePool.Get().(*dumper)
 	child.value = valueOf(obj, false)
 	child.depth = d.depth
@@ -94,7 +94,7 @@ func (d *dumper) clone(obj any) *dumper {
 	return child
 }
 
-func dumpclone(d *dumper, obj any) string {
+func dumpclone(d *dumper, obj interface{}) string {
 	cloned := d.clone(obj).build()
 	ret := cloned.String()
 	cloned.release()
@@ -158,7 +158,7 @@ func (d *dumper) build() *dumper {
 	case reflect.UnsafePointer:
 		d.printf("%s(uintptr(%v))", d.value.Type().String(), d.value.Pointer())
 		return d
-	case reflect.Pointer:
+	case reflect.Ptr:
 		d.writePtr()
 		return d
 	}
@@ -229,7 +229,7 @@ func (d *dumper) writePtr() {
 	// dereference
 	deref := d.value.Elem()
 	kind := deref.Kind()
-	if kind == reflect.Pointer {
+	if kind == reflect.Ptr {
 		d.writePointer()
 		return
 	}
@@ -254,7 +254,7 @@ func (d *dumper) writeStruct() {
 
 	for i := 0; i < numField; i++ {
 		field := d.value.Type().Field(i)
-		if d.exportedOnly && !field.IsExported() {
+		if d.exportedOnly && !isExported(field) {
 			continue
 		}
 		fieldIdxs = append(fieldIdxs, i)
@@ -484,7 +484,7 @@ func (d *dumper) writeIndentedRaw(s string) {
 	d.writeRaw(s)
 }
 
-func (d *dumper) indentedPrintf(format string, a ...any) {
+func (d *dumper) indentedPrintf(format string, a ...interface{}) {
 	d.writeIndent()
 	d.printf(format, a...)
 }
@@ -494,7 +494,7 @@ func (d *dumper) writeRaw(s string) {
 	io.WriteString(d.tw, s)
 }
 
-func (d *dumper) printf(format string, a ...any) {
+func (d *dumper) printf(format string, a ...interface{}) {
 	fmt.Fprintf(d.tw, format, a...)
 }
 

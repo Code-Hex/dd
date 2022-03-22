@@ -14,7 +14,7 @@ import (
 func TestWithDumpFunc(t *testing.T) {
 	cases := []struct {
 		name       string
-		v          any
+		v          interface{}
 		want       string
 		dumpOption dd.OptionFunc
 	}{

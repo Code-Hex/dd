@@ -15,10 +15,18 @@ import (
 	"github.com/Code-Hex/dd"
 )
 
+const (
+	intSize = 32 << (^uint(0) >> 63) // 32 or 64
+
+	MaxInt  = 1<<(intSize-1) - 1
+	MinInt  = -1 << (intSize - 1)
+	MaxUint = 1<<intSize - 1
+)
+
 func TestDumpBasic(t *testing.T) {
 	cases := []struct {
 		name string
-		v    any
+		v    interface{}
 		want string
 	}{
 		{
@@ -43,13 +51,13 @@ func TestDumpBasic(t *testing.T) {
 		},
 		{
 			name: "max int",
-			v:    int(math.MaxInt),
-			want: strconv.FormatInt(math.MaxInt, 10),
+			v:    int(MaxInt),
+			want: strconv.FormatInt(MaxInt, 10),
 		},
 		{
 			name: "min int",
-			v:    int(math.MinInt),
-			want: strconv.FormatInt(math.MinInt, 10),
+			v:    int(MinInt),
+			want: strconv.FormatInt(MinInt, 10),
 		},
 		{
 			name: "max int8",
@@ -93,8 +101,8 @@ func TestDumpBasic(t *testing.T) {
 		},
 		{
 			name: "max uint",
-			v:    uint(math.MaxUint),
-			want: strconv.FormatUint(math.MaxUint, 10),
+			v:    uint(MaxUint),
+			want: strconv.FormatUint(MaxUint, 10),
 		},
 		{
 			name: "max uint8",
@@ -156,7 +164,7 @@ func TestDumpBasic(t *testing.T) {
 		},
 		{
 			name: "array [2]interface {}{}",
-			v:    [2]any{1, "hello"},
+			v:    [2]interface{}{1, "hello"},
 			want: "[2]interface {}{\n  1,\n  \"hello\",\n}",
 			// [2]interface {}{
 			//   1, // 2 spaces indent
@@ -184,7 +192,7 @@ func TestDumpBasic(t *testing.T) {
 		},
 		{
 			name: "slice []interface {}{}",
-			v:    []any{1, "hello"},
+			v:    []interface{}{1, "hello"},
 			want: "[]interface {}{\n  1,\n  \"hello\",\n}",
 			// []int{
 			//   1, // 2 spaces indent
@@ -290,7 +298,7 @@ func TestDumpBasic(t *testing.T) {
 		for _, tc := range cases {
 			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
-				got := dd.Dump(any(tc.v))
+				got := dd.Dump(interface{}(tc.v))
 				if tc.want != got {
 					t.Fatalf("want %q, but got %q", tc.want, got)
 				}
@@ -306,7 +314,7 @@ func TestDumpBasic(t *testing.T) {
 func TestPointer(t *testing.T) {
 	cases := []struct {
 		name string
-		v    any
+		v    interface{}
 		want string
 	}{
 		{
@@ -346,7 +354,7 @@ func TestPointer(t *testing.T) {
 		},
 		{
 			name: "pointer of pointer of struct",
-			v: func() any {
+			v: func() interface{} {
 				a := &struct{ age int }{age: 10}
 				return &a
 			}(),
@@ -392,7 +400,7 @@ func TestPointer(t *testing.T) {
 		for _, tc := range cases {
 			tc := tc
 			t.Run(tc.name, func(t *testing.T) {
-				got := dd.Dump(any(tc.v))
+				got := dd.Dump(interface{}(tc.v))
 				if !strings.Contains(got, tc.want) {
 					t.Fatalf("want %q, but got %q", tc.want, got)
 				}
@@ -435,7 +443,7 @@ func TestWithExportedOnly(t *testing.T) {
 func TestWithUintFormat(t *testing.T) {
 	cases := []struct {
 		name       string
-		v          any
+		v          interface{}
 		want       string
 		dumpOption dd.OptionFunc
 	}{
@@ -504,12 +512,12 @@ func TestWithUintFormat(t *testing.T) {
 func TestCircularRefs(t *testing.T) {
 	cases := []struct {
 		name string
-		v    any
+		v    interface{}
 		want string
 	}{
 		{
 			name: "struct",
-			v: func() any {
+			v: func() interface{} {
 				type A struct {
 					a *A
 				}
@@ -521,8 +529,8 @@ func TestCircularRefs(t *testing.T) {
 		},
 		{
 			name: "map",
-			v: func() any {
-				a := map[struct{}]any{}
+			v: func() interface{} {
+				a := map[struct{}]interface{}{}
 				a[struct{}{}] = a
 				return a
 			}(),
@@ -530,8 +538,8 @@ func TestCircularRefs(t *testing.T) {
 		},
 		{
 			name: "slice",
-			v: func() any {
-				a := make([]any, 1)
+			v: func() interface{} {
+				a := make([]interface{}, 1)
 				a[0] = a
 				return a
 			}(),
@@ -556,7 +564,7 @@ func TestCircularRefs(t *testing.T) {
 func TestWithListBreakLineSize(t *testing.T) {
 	cases := []struct {
 		name       string
-		v          any
+		v          interface{}
 		want       string
 		dumpOption dd.OptionFunc
 	}{

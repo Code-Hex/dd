@@ -20,7 +20,7 @@ var addressReplaceRegexp = regexp.MustCompile(`uintptr\((0x[\da-f]+)\)`)
 
 type Entry struct {
 	name  string
-	value any
+	value interface{}
 	want  []byte
 }
 
@@ -41,7 +41,7 @@ func makeEntries() ([]Entry, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to read file %q: %w", wantFile, err)
 		}
-		var unmarshaled any
+		var unmarshaled interface{}
 		if err := json.Unmarshal(content, &unmarshaled); err != nil {
 			return nil, fmt.Errorf("failed to unmarshal: %w", err)
 		}
