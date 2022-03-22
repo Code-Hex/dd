@@ -5,8 +5,6 @@ package dd
 
 import "reflect"
 
-type any = interface{}
-
 // DumpFunc is a function to dump you specified custom format.
 type DumpFunc func(interface{}, Writer)
 
