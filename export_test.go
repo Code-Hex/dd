@@ -1,6 +1,7 @@
 package dd_test
 
 import (
+	"context"
 	"fmt"
 	"go/parser"
 	"math"
@@ -640,5 +641,25 @@ func TestWithListBreakLineSize(t *testing.T) {
 				t.Fatal(err)
 			}
 		})
+	}
+}
+
+func TestUnexportedField(t *testing.T) {
+	type stringKey struct{}
+	ctx := context.WithValue(
+		context.Background(),
+		stringKey{},
+		"value",
+	)
+	got := dd.Dump(ctx, dd.WithDumpFunc(func(s string, w dd.Writer) {
+		w.Write(s)
+	}))
+	got = addressReplaceRegexp.ReplaceAllString(got, "0x0")
+	want := "&context.valueCtx{\n  Context: (*context.emptyCtx)(unsafe.Pointer(0x0)),\n  key: dd_test.stringKey{},\n  val: value,\n}"
+	if want != got {
+		t.Fatalf("want %q, but got %q", want, got)
+	}
+	if _, err := parser.ParseExpr(got); err != nil {
+		t.Fatal(err)
 	}
 }
