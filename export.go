@@ -16,7 +16,7 @@ const (
 )
 
 // Dump dumps specified data.
-func Dump(data any, opts ...OptionFunc) string {
+func Dump(data interface{}, opts ...OptionFunc) string {
 	return newDataDumper(data, opts...).build().String()
 }
 
@@ -56,7 +56,7 @@ func WithUintFormat(mode UintFormat) OptionFunc {
 // WithListBreakLineSize is an option to specify the number of elements to break lines
 // when dumped a listing (slice, array) of a given type.
 // The number must be more than 1 otherwise treats as 1.
-func WithListBreakLineSize(typ any, size int) OptionFunc {
+func WithListBreakLineSize(typ interface{}, size int) OptionFunc {
 	return func(o *options) {
 		tmp := reflect.TypeOf(typ)
 		o.listGroupingSize[tmp] = size

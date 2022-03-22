@@ -19,7 +19,7 @@ func main() {
 }
 
 func run(ctx context.Context) error {
-	zeroPrimitives := []any{
+	zeroPrimitives := []interface{}{
 		false,
 		uint8(0),
 		uint16(0),
