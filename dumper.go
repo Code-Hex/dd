@@ -40,7 +40,7 @@ type dumper struct {
 	depth            int
 	visitPointers    map[uintptr]bool
 	cachedZeroValues map[reflect.Type]string
-	clonePool        sync.Pool
+	clonePool        *sync.Pool
 	// options
 	exportedOnly     bool
 	uintFormat       UintFormat
@@ -58,7 +58,7 @@ func newDataDumper(obj interface{}, optFuncs ...OptionFunc) *dumper {
 	for _, apply := range optFuncs {
 		apply(opts)
 	}
-	clonePool := sync.Pool{
+	clonePool := &sync.Pool{
 		New: func() interface{} {
 			buf := new(strings.Builder)
 			return &dumper{
@@ -243,7 +243,6 @@ func (d *dumper) writePtr() {
 		return
 	}
 	d.printf("&%s", dumpclone(d, deref))
-	return
 }
 
 func (d *dumper) writeStruct() {
@@ -434,7 +433,6 @@ func (d *dumper) writeUnsignedInt() {
 		}
 	}
 	d.writeRaw(strconv.FormatUint(d.value.Uint(), 10))
-	return
 }
 
 func (d *dumper) writePointer() {
@@ -443,7 +441,6 @@ func (d *dumper) writePointer() {
 		d.value.Type().String(),
 		d.value.Pointer(),
 	)
-	return
 }
 
 func (d *dumper) writeVisitedPointer() bool {
