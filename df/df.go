@@ -1,6 +1,7 @@
 package df
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -9,6 +10,32 @@ import (
 
 	"github.com/Code-Hex/dd"
 )
+
+// WithBytes is a wrapper of WithDumpFunc for []byte and []uint8.
+// The format of the dump matches the output of `hexdump -C` on the command line.
+func WithRichBytes() dd.OptionFunc {
+	return dd.WithDumpFunc(
+		func(v []byte, w dd.Writer) {
+			dumpLines := strings.Split(hex.Dump(v), "\n")
+			for i := 0; i < len(dumpLines); i++ {
+				dumpLines[i] = "// " + dumpLines[i]
+			}
+			var buf strings.Builder
+			buf.WriteString("return []byte{")
+			for i, b := range v {
+				fmt.Fprintf(&buf, "0x%02x", b)
+				if i != len(v)-1 {
+					buf.WriteString(", ")
+				}
+			}
+			buf.WriteString("}")
+			dumpLines = append(dumpLines, buf.String())
+			w.Write("func() []byte ")
+			w.WriteBlock(strings.Join(dumpLines, "\n"))
+			w.Write("()")
+		},
+	)
+}
 
 // WithJSONRawMessage is a wrapper of WithDumpFunc for json.RawMessage.
 // Dumps a raw JSON string.
@@ -42,6 +69,7 @@ func WithTime(format string) dd.OptionFunc {
 					"\n",
 				),
 			)
+			w.Write("()")
 		},
 	)
 }
@@ -65,6 +93,7 @@ func WithBigInt() dd.OptionFunc {
 					"\n",
 				),
 			)
+			w.Write("()")
 		},
 	)
 }
@@ -88,6 +117,7 @@ func WithBigFloat() dd.OptionFunc {
 					"\n",
 				),
 			)
+			w.Write("()")
 		},
 	)
 }
