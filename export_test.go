@@ -290,6 +290,16 @@ func TestDumpBasic(t *testing.T) {
 			v:    http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
 			want: "http.HandlerFunc(func(http.ResponseWriter, *http.Request) {\n  // ...\n})",
 		},
+		{
+			name: "(context.CancelFunc)(nil)",
+			v:    (context.CancelFunc)(nil),
+			want: "(context.CancelFunc)(nil)",
+		},
+		{
+			name: "(http.HandlerFunc)(nil)",
+			v:    (http.HandlerFunc)(nil),
+			want: "(http.HandlerFunc)(nil)",
+		},
 	}
 	t.Run("typed", func(t *testing.T) {
 		for _, tc := range cases {
