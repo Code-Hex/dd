@@ -6,6 +6,7 @@ import (
 	"go/parser"
 	"math"
 	"mime/multipart"
+	"net/http"
 	"net/textproto"
 	"reflect"
 	"strconv"
@@ -278,6 +279,16 @@ func TestDumpBasic(t *testing.T) {
 			name: "reflect.Value{}",
 			v:    reflect.Value{},
 			want: "reflect.Value{\n  typ: (*reflect.rtype)(nil),\n  ptr: unsafe.Pointer(uintptr(0)),\n  flag: 0,\n}",
+		},
+		{
+			name: "context.CancelFunc",
+			v:    context.CancelFunc(func() {}),
+			want: "context.CancelFunc(func() {\n  // ...\n})",
+		},
+		{
+			name: "http.HandlerFunc",
+			v:    http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+			want: "http.HandlerFunc(func(http.ResponseWriter, *http.Request) {\n  // ...\n})",
 		},
 	}
 	t.Run("typed", func(t *testing.T) {

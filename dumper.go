@@ -185,7 +185,22 @@ func (d *dumper) writeFunc() {
 		return
 	}
 
-	d.writeRaw(d.value.Type().String())
+	typ := d.value.Type()
+	funcTyp := typ.String()
+	d.writeRaw(funcTyp)
+	// check anonymous function or not.
+	// e.g. context.CancelFunc => context.CancelFunc(func() {})
+	isNotAnonymous := !strings.HasPrefix(funcTyp, "func(")
+	if isNotAnonymous {
+		d.writeRaw("(func(")
+		for i := 0; i < typ.NumIn(); i++ {
+			if i > 0 {
+				d.writeRaw(", ")
+			}
+			d.writeRaw(typ.In(i).String())
+		}
+		d.writeRaw(")")
+	}
 	d.writeRaw(" ")
 
 	d.writeBlock(func() {
@@ -204,6 +219,9 @@ func (d *dumper) writeFunc() {
 		}
 		d.indentedPrintf("return %s\n", strings.Join(zeroValues, ", "))
 	})
+	if isNotAnonymous {
+		d.writeRaw(")")
+	}
 }
 
 //go:generate go run cmd/zero/main.go
