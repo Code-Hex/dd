@@ -268,6 +268,9 @@ func (d *dumper) writeStruct() {
 		for _, idx := range fieldIdxs {
 			field := d.value.Type().Field(idx)
 			fieldVal := d.value.Field(idx)
+			if !isExported(field) && fieldVal.CanAddr() {
+				fieldVal = getUnexportedField(fieldVal)
+			}
 			d.indentedPrintf("%s: %s,\n", field.Name, dumpclone(d, fieldVal))
 		}
 	})
