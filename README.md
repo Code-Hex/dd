@@ -6,6 +6,8 @@
 - ✅ Support Go 1.16 ~ 1.18 (available generics!)
 - ✅ Customizable dump format each types
   - Available some options in [`df`](https://github.com/Code-Hex/dd/blob/main/df/df.go) package
+- ✅ Support pretty print
+  - You can use any color theme you like.
 
 There are several libraries similar to this exist. I like them all, each one leans toward debugging purposes mainly.
 
@@ -71,9 +73,7 @@ func main() {
 }
 ```
 
-<center>
-  <img width="530" alt="color.png" src="https://user-images.githubusercontent.com/6500104/159877754-976b2d48-7b58-493f-8ff7-589b782d690a.png">
-</center>
+<img width="530" alt="color.png" src="https://user-images.githubusercontent.com/6500104/159877754-976b2d48-7b58-493f-8ff7-589b782d690a.png">
 
 You can read [examples/pretty/main.go](https://github.com/Code-Hex/dd/blob/main/examples/pretty/main.go). If you want to adopt a color theme of your own choice, the following links will help you: [pkg.go.dev/github.com/alecthomas/chroma/styles](https://pkg.go.dev/github.com/alecthomas/chroma/styles).
 
@@ -104,7 +104,7 @@ fmt.Println(
 //   return []byte{0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64}
 // }()
 fmt.Println(
-	dd.Dump([]byte("Hello, World"), df.WithRichBytes()),
+  dd.Dump([]byte("Hello, World"), df.WithRichBytes()),
 )
 ```
 
