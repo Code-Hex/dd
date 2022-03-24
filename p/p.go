@@ -64,6 +64,16 @@ func WithStyle(style *chroma.Style) OptionFunc {
 	}
 }
 
+// WithFormatter is an option to set formatter of the terminal output.
+// Default will be set TTY256(256-colour) formatter.
+//
+// Available chroma built-in formatters: https://pkg.go.dev/github.com/alecthomas/chroma/formatters
+func WithFormatter(formatter chroma.Formatter) OptionFunc {
+	return func(opts *options) {
+		opts.formatter = formatter
+	}
+}
+
 // P prints dumped your specified data with colored.
 // Spaces are always added between operands and a newline is appended.
 // It returns the number of bytes written and any write error encountered.
