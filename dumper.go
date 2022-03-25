@@ -181,9 +181,11 @@ func (d *dumper) writeFunc() {
 		return
 	}
 
-	if ok := d.writeVisitedPointer(); ok {
+	cleanup, ok := d.writeVisitedPointer()
+	if ok {
 		return
 	}
+	defer cleanup()
 
 	typ := d.value.Type()
 	funcTyp := typ.String()
@@ -240,9 +242,11 @@ func (d *dumper) writePtr() {
 		d.printf("(%s)(nil)", d.value.Type())
 		return
 	}
-	if ok := d.writeVisitedPointer(); ok {
+	cleanup, ok := d.writeVisitedPointer()
+	if ok {
 		return
 	}
+	defer cleanup()
 
 	// dereference
 	deref := d.value.Elem()
@@ -315,9 +319,11 @@ func (d *dumper) writeMap() {
 		return
 	}
 
-	if ok := d.writeVisitedPointer(); ok {
+	cleanup, ok := d.writeVisitedPointer()
+	if ok {
 		return
 	}
+	defer cleanup()
 
 	d.writeRaw(d.value.Type().String())
 
@@ -341,9 +347,11 @@ func (d *dumper) writeSlice() {
 		return
 	}
 
-	if ok := d.writeVisitedPointer(); ok {
+	cleanup, ok := d.writeVisitedPointer()
+	if ok {
 		return
 	}
+	defer cleanup()
 
 	d.writeArray()
 }
@@ -464,14 +472,16 @@ func (d *dumper) writePointer() {
 	)
 }
 
-func (d *dumper) writeVisitedPointer() bool {
+func (d *dumper) writeVisitedPointer() (func(), bool) {
 	pointer := d.value.Pointer()
 	if d.visitPointers[pointer] {
 		d.writePointer()
-		return true
+		return nil, true
 	}
 	d.visitPointers[pointer] = true
-	return false
+	return func() {
+		d.visitPointers[pointer] = false
+	}, false
 }
 
 func (d *dumper) writeBlock(f func()) {
