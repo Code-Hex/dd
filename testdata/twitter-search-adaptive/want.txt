@@ -48,9 +48,9 @@ map[string]interface {}{
         },
         "entities": map[string]interface {}{
           "hashtags":      []interface {}{},
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -249,7 +249,7 @@ map[string]interface {}{
               "text": "DX",
             },
           },
-          "symbols": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols": []interface {}{},
           "urls":    []interface {}{
             map[string]interface {}{
               "display_url":  "goo.gle/3gCmbKk",
@@ -261,7 +261,7 @@ map[string]interface {}{
               "url": "https://t.co/kBi0qWdzEy",
             },
           },
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -308,23 +308,23 @@ map[string]interface {}{
           276.000000,
         },
         "entities": map[string]interface {}{
-          "hashtags": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "hashtags": []interface {}{},
           "media":    []interface {}{
             map[string]interface {}{
               "display_url":  "pic.twitter.com/hg7oy3NeEJ",
               "expanded_url": "https://twitter.com/KorsunskySergiy/status/1500151517546160128/photo/1",
               "features":     map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500151284963627008.000000,
@@ -397,9 +397,9 @@ map[string]interface {}{
               "url":  "https://t.co/hg7oy3NeEJ",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -471,16 +471,16 @@ map[string]interface {}{
               "ext_sensitive_media_warning": nil,
               "features":                    map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500151284963627008.000000,
@@ -615,9 +615,9 @@ map[string]interface {}{
               "text": "ウクライナ",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -771,7 +771,7 @@ map[string]interface {}{
               "type":       "USER",
               "user_value": map[string]interface {}{
                 "id_str": "158996759",
-                "path":   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                "path":   []interface {}{},
               },
             },
             "summary_photo_image": map[string]interface {}{
@@ -1076,8 +1076,8 @@ map[string]interface {}{
               "name":                               "cnn_co_jp",
               "normal_followers_count":             401088.000000,
               "notifications":                      false,
-              "pinned_tweet_ids":                   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-              "pinned_tweet_ids_str":               ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+              "pinned_tweet_ids":                   []interface {}{},
+              "pinned_tweet_ids_str":               []interface {}{},
               "profile_background_color":           "0099B9",
               "profile_background_image_url":       "http://abs.twimg.com/images/themes/theme4/bg.gif",
               "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme4/bg.gif",
@@ -1160,7 +1160,7 @@ map[string]interface {}{
               "utc_offset":                                       nil,
               "verified":                                         true,
               "want_retweets":                                    false,
-              "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+              "withheld_in_countries":                            []interface {}{},
             },
           },
         },
@@ -1174,8 +1174,8 @@ map[string]interface {}{
           47.000000,
         },
         "entities": map[string]interface {}{
-          "hashtags": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "symbols":  ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "hashtags": []interface {}{},
+          "symbols":  []interface {}{},
           "urls":     []interface {}{
             map[string]interface {}{
               "display_url":  "cnn.co.jp/world/35184495…",
@@ -1187,7 +1187,7 @@ map[string]interface {}{
               "url": "https://t.co/a1eLhIlj47",
             },
           },
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -1263,16 +1263,16 @@ map[string]interface {}{
               "expanded_url": "https://twitter.com/ta_nipponia/status/1500423357061541893/photo/1",
               "features":     map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500422124070391808.000000,
@@ -1345,9 +1345,9 @@ map[string]interface {}{
               "url":  "https://t.co/CGyKsBtm6K",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -1419,16 +1419,16 @@ map[string]interface {}{
               "ext_sensitive_media_warning": nil,
               "features":                    map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500422124070391808.000000,
@@ -1670,7 +1670,7 @@ map[string]interface {}{
               "type":       "USER",
               "user_value": map[string]interface {}{
                 "id_str": "88846085",
-                "path":   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                "path":   []interface {}{},
               },
             },
             "summary_photo_image": map[string]interface {}{
@@ -1905,7 +1905,7 @@ map[string]interface {}{
               "description":             "Yahoo!ニュースの公式アカウントです。365日24時間、Yahoo! JAPANトップページに掲出される話題を速報でお届け。※株式会社アフロ社提供の写真を使用している場合があります。",
               "entities":                map[string]interface {}{
                 "description": map[string]interface {}{
-                  "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "urls": []interface {}{},
                 },
                 "url": map[string]interface {}{
                   "urls": []interface {}{
@@ -2109,7 +2109,7 @@ map[string]interface {}{
               "utc_offset":                                       nil,
               "verified":                                         true,
               "want_retweets":                                    true,
-              "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+              "withheld_in_countries":                            []interface {}{},
             },
           },
         },
@@ -2139,7 +2139,7 @@ map[string]interface {}{
               "text": "UkraineRussianWar",
             },
           },
-          "symbols": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols": []interface {}{},
           "urls":    []interface {}{
             map[string]interface {}{
               "display_url":  "news.yahoo.co.jp/articles/0f959…",
@@ -2151,7 +2151,7 @@ map[string]interface {}{
               "url": "https://t.co/wvJg6EdMI7",
             },
           },
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -2234,16 +2234,16 @@ map[string]interface {}{
               "expanded_url": "https://twitter.com/LARvAngerion/status/1500431903622451200/photo/1",
               "features":     map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500431893694607360.000000,
@@ -2320,16 +2320,16 @@ map[string]interface {}{
               "expanded_url": "https://twitter.com/LARvAngerion/status/1500431903622451200/photo/1",
               "features":     map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500431893694611456.000000,
@@ -2726,8 +2726,8 @@ map[string]interface {}{
               "url":  "https://t.co/Ya8LVwi0g2",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
           "user_mentions": []interface {}{
             map[string]interface {}{
               "id":      2573415912.000000,
@@ -2811,16 +2811,16 @@ map[string]interface {}{
               "ext_sensitive_media_warning": nil,
               "features":                    map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500431893694607360.000000,
@@ -2953,16 +2953,16 @@ map[string]interface {}{
               "ext_sensitive_media_warning": nil,
               "features":                    map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500431893694611456.000000,
@@ -3537,9 +3537,9 @@ map[string]interface {}{
               "text": "プーチンはウクライナ侵略をやめろ",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -3657,9 +3657,9 @@ map[string]interface {}{
               "url":  "https://t.co/qzEhSCVgfy",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -3878,16 +3878,16 @@ map[string]interface {}{
               "expanded_url": "https://twitter.com/love_meats/status/1500440509512175618/photo/1",
               "features":     map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500440502860017664.000000,
@@ -3960,9 +3960,9 @@ map[string]interface {}{
               "url":  "https://t.co/QUPQnKBbAn",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -4034,16 +4034,16 @@ map[string]interface {}{
               "ext_sensitive_media_warning": nil,
               "features":                    map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500440502860017664.000000,
@@ -4181,16 +4181,16 @@ map[string]interface {}{
               "expanded_url": "https://twitter.com/JYARN121/status/1500445802061508613/photo/1",
               "features":     map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500445789684125696.000000,
@@ -4263,9 +4263,9 @@ map[string]interface {}{
               "url":  "https://t.co/4yF4wSWRkd",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -4337,16 +4337,16 @@ map[string]interface {}{
               "ext_sensitive_media_warning": nil,
               "features":                    map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500445789684125696.000000,
@@ -4495,9 +4495,9 @@ map[string]interface {}{
               "text": "Russia",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -4695,9 +4695,9 @@ map[string]interface {}{
               "url":  "https://t.co/X8EXGTB073",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -4940,16 +4940,16 @@ map[string]interface {}{
               "expanded_url": "https://twitter.com/manpuku186/status/1500451264261287939/photo/1",
               "features":     map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500451259693760512.000000,
@@ -5022,9 +5022,9 @@ map[string]interface {}{
               "url":  "https://t.co/62bIfoHd6o",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -5096,16 +5096,16 @@ map[string]interface {}{
               "ext_sensitive_media_warning": nil,
               "features":                    map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500451259693760512.000000,
@@ -5239,16 +5239,16 @@ map[string]interface {}{
               "expanded_url": "https://twitter.com/fdYdxyCVP3w4ff0/status/1500456224110039044/photo/1",
               "features":     map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500456200609370112.000000,
@@ -5325,16 +5325,16 @@ map[string]interface {}{
               "expanded_url": "https://twitter.com/fdYdxyCVP3w4ff0/status/1500456224110039044/photo/1",
               "features":     map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500456205772537856.000000,
@@ -5411,16 +5411,16 @@ map[string]interface {}{
               "expanded_url": "https://twitter.com/fdYdxyCVP3w4ff0/status/1500456224110039044/photo/1",
               "features":     map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500456215683694592.000000,
@@ -5497,16 +5497,16 @@ map[string]interface {}{
               "expanded_url": "https://twitter.com/fdYdxyCVP3w4ff0/status/1500456224110039044/photo/1",
               "features":     map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500456221207597056.000000,
@@ -5579,9 +5579,9 @@ map[string]interface {}{
               "url":  "https://t.co/U4WjVjgdTP",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -5653,16 +5653,16 @@ map[string]interface {}{
               "ext_sensitive_media_warning": nil,
               "features":                    map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500456200609370112.000000,
@@ -5795,16 +5795,16 @@ map[string]interface {}{
               "ext_sensitive_media_warning": nil,
               "features":                    map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500456205772537856.000000,
@@ -5937,16 +5937,16 @@ map[string]interface {}{
               "ext_sensitive_media_warning": nil,
               "features":                    map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500456215683694592.000000,
@@ -6079,16 +6079,16 @@ map[string]interface {}{
               "ext_sensitive_media_warning": nil,
               "features":                    map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500456221207597056.000000,
@@ -6222,16 +6222,16 @@ map[string]interface {}{
               "expanded_url": "https://twitter.com/shiro0909/status/1500464085556957184/photo/1",
               "features":     map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500463815619936256.000000,
@@ -6304,9 +6304,9 @@ map[string]interface {}{
               "url":  "https://t.co/Tr6FR8eJCm",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -6378,16 +6378,16 @@ map[string]interface {}{
               "ext_sensitive_media_warning": nil,
               "features":                    map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500463815619936256.000000,
@@ -6676,9 +6676,9 @@ map[string]interface {}{
               "url":  "https://t.co/4MLuvNR5ls",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -7010,7 +7010,7 @@ map[string]interface {}{
               "url":  "https://t.co/C48L9HEQyF",
             },
           },
-          "symbols": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols": []interface {}{},
           "urls":    []interface {}{
             map[string]interface {}{
               "display_url":  "fx-mania.biz",
@@ -7022,7 +7022,7 @@ map[string]interface {}{
               "url": "https://t.co/ab9kCmQ6F0",
             },
           },
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -7199,9 +7199,9 @@ map[string]interface {}{
               "text": "Ukraine️",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -7352,7 +7352,7 @@ map[string]interface {}{
               "type":       "USER",
               "user_value": map[string]interface {}{
                 "id_str": "88846085",
-                "path":   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                "path":   []interface {}{},
               },
             },
             "summary_photo_image": map[string]interface {}{
@@ -7539,7 +7539,7 @@ map[string]interface {}{
               "description":             "Yahoo!ニュースの公式アカウントです。365日24時間、Yahoo! JAPANトップページに掲出される話題を速報でお届け。※株式会社アフロ社提供の写真を使用している場合があります。",
               "entities":                map[string]interface {}{
                 "description": map[string]interface {}{
-                  "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "urls": []interface {}{},
                 },
                 "url": map[string]interface {}{
                   "urls": []interface {}{
@@ -7743,7 +7743,7 @@ map[string]interface {}{
               "utc_offset":                                       nil,
               "verified":                                         true,
               "want_retweets":                                    true,
-              "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+              "withheld_in_countries":                            []interface {}{},
             },
           },
         },
@@ -7794,7 +7794,7 @@ map[string]interface {}{
               "text": "デモ",
             },
           },
-          "symbols": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols": []interface {}{},
           "urls":    []interface {}{
             map[string]interface {}{
               "display_url":  "news.yahoo.co.jp/articles/7ee28…",
@@ -7806,7 +7806,7 @@ map[string]interface {}{
               "url": "https://t.co/FwZlwe4ipx",
             },
           },
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -7889,16 +7889,16 @@ map[string]interface {}{
               "expanded_url": "https://twitter.com/lalah_sakuya/status/1500503206530805764/photo/1",
               "features":     map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500503201992577024.000000,
@@ -7971,9 +7971,9 @@ map[string]interface {}{
               "url":  "https://t.co/e8p5yyG5Tv",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -8045,16 +8045,16 @@ map[string]interface {}{
               "ext_sensitive_media_warning": nil,
               "features":                    map[string]interface {}{
                 "large": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "medium": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "orig": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
                 "small": map[string]interface {}{
-                  "faces": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                  "faces": []interface {}{},
                 },
               },
               "id":      1500503201992577024.000000,
@@ -8347,9 +8347,9 @@ map[string]interface {}{
               "url":  "https://t.co/y7PXAM74I9",
             },
           },
-          "symbols":       ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "urls":          ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols":       []interface {}{},
+          "urls":          []interface {}{},
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -8700,7 +8700,7 @@ map[string]interface {}{
               "type":       "USER",
               "user_value": map[string]interface {}{
                 "id_str": "48651959",
-                "path":   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+                "path":   []interface {}{},
               },
             },
             "summary_photo_image": map[string]interface {}{
@@ -9011,8 +9011,8 @@ map[string]interface {}{
               "name":                               "ニコニコ公式＠卒業を迎えるみなさん、おめでとうございます💮",
               "normal_followers_count":             339172.000000,
               "notifications":                      false,
-              "pinned_tweet_ids":                   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-              "pinned_tweet_ids_str":               ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+              "pinned_tweet_ids":                   []interface {}{},
+              "pinned_tweet_ids_str":               []interface {}{},
               "profile_background_color":           "BADFCD",
               "profile_background_image_url":       "http://abs.twimg.com/images/themes/theme12/bg.gif",
               "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme12/bg.gif",
@@ -9098,7 +9098,7 @@ map[string]interface {}{
               "utc_offset":                                       nil,
               "verified":                                         true,
               "want_retweets":                                    false,
-              "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+              "withheld_in_countries":                            []interface {}{},
             },
           },
         },
@@ -9149,7 +9149,7 @@ map[string]interface {}{
               "text": "NoWar",
             },
           },
-          "symbols": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "symbols": []interface {}{},
           "urls":    []interface {}{
             map[string]interface {}{
               "display_url":  "nico.ms/sm40141077",
@@ -9161,7 +9161,7 @@ map[string]interface {}{
               "url": "https://t.co/nJaFYdJi9C",
             },
           },
-          "user_mentions": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+          "user_mentions": []interface {}{},
         },
         "ext": map[string]interface {}{
           "superFollowMetadata": map[string]interface {}{
@@ -9220,7 +9220,7 @@ map[string]interface {}{
         "description":             "あんまりだよ…",
         "entities":                map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
           "url": map[string]interface {}{
             "urls": []interface {}{
@@ -9285,8 +9285,8 @@ map[string]interface {}{
         "name":                               "あんまりだよ",
         "normal_followers_count":             24.000000,
         "notifications":                      false,
-        "pinned_tweet_ids":                   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-        "pinned_tweet_ids_str":               ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "pinned_tweet_ids":                   []interface {}{},
+        "pinned_tweet_ids_str":               []interface {}{},
         "profile_background_color":           "C0DEED",
         "profile_background_image_url":       "http://abs.twimg.com/images/themes/theme1/bg.png",
         "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme1/bg.png",
@@ -9412,7 +9412,7 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "1316632272007651329": map[string]interface {}{
         "advertiser_account_service_levels": []interface {}{
@@ -9431,7 +9431,7 @@ map[string]interface {}{
         "description":             "",
         "entities":                map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
           "url": map[string]interface {}{
             "urls": []interface {}{
@@ -9496,8 +9496,8 @@ map[string]interface {}{
         "name":                               "セルギー・コルスンスキー駐日ウクライナ特命全権大使",
         "normal_followers_count":             35664.000000,
         "notifications":                      false,
-        "pinned_tweet_ids":                   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-        "pinned_tweet_ids_str":               ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "pinned_tweet_ids":                   []interface {}{},
+        "pinned_tweet_ids_str":               []interface {}{},
         "profile_background_color":           "F5F8FA",
         "profile_background_image_url":       nil,
         "profile_background_image_url_https": nil,
@@ -9615,10 +9615,10 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "1349236093757972480": map[string]interface {}{
-        "advertiser_account_service_levels": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "advertiser_account_service_levels": []interface {}{},
         "advertiser_account_type":           "none",
         "blocked_by":                        false,
         "blocking":                          false,
@@ -9632,7 +9632,7 @@ map[string]interface {}{
         "description":                       "FX専業でいきています！",
         "entities":                          map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
         },
         "ext": map[string]interface {}{
@@ -9684,8 +9684,8 @@ map[string]interface {}{
         "name":                               "Yeb1s",
         "normal_followers_count":             4.000000,
         "notifications":                      false,
-        "pinned_tweet_ids":                   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-        "pinned_tweet_ids_str":               ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "pinned_tweet_ids":                   []interface {}{},
+        "pinned_tweet_ids_str":               []interface {}{},
         "profile_background_color":           "F5F8FA",
         "profile_background_image_url":       nil,
         "profile_background_image_url_https": nil,
@@ -9763,10 +9763,10 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "1365300423523901441": map[string]interface {}{
-        "advertiser_account_service_levels": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "advertiser_account_service_levels": []interface {}{},
         "advertiser_account_type":           "none",
         "blocked_by":                        false,
         "blocking":                          false,
@@ -9780,7 +9780,7 @@ map[string]interface {}{
         "description":                       "語彙力小学生です。",
         "entities":                          map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
         },
         "ext": map[string]interface {}{
@@ -9971,10 +9971,10 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "1420019263683932168": map[string]interface {}{
-        "advertiser_account_service_levels": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "advertiser_account_service_levels": []interface {}{},
         "advertiser_account_type":           "none",
         "blocked_by":                        false,
         "blocking":                          false,
@@ -9988,7 +9988,7 @@ map[string]interface {}{
         "description":                       "",
         "entities":                          map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
         },
         "ext": map[string]interface {}{
@@ -10040,8 +10040,8 @@ map[string]interface {}{
         "name":                               "たきごん",
         "normal_followers_count":             3.000000,
         "notifications":                      false,
-        "pinned_tweet_ids":                   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-        "pinned_tweet_ids_str":               ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "pinned_tweet_ids":                   []interface {}{},
+        "pinned_tweet_ids_str":               []interface {}{},
         "profile_background_color":           "F5F8FA",
         "profile_background_image_url":       nil,
         "profile_background_image_url_https": nil,
@@ -10103,10 +10103,10 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "1420242063535214594": map[string]interface {}{
-        "advertiser_account_service_levels": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "advertiser_account_service_levels": []interface {}{},
         "advertiser_account_type":           "none",
         "blocked_by":                        false,
         "blocking":                          false,
@@ -10120,7 +10120,7 @@ map[string]interface {}{
         "description":                       "日々のあれこれ＠おっちゃん",
         "entities":                          map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
         },
         "ext": map[string]interface {}{
@@ -10287,10 +10287,10 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "145562200": map[string]interface {}{
-        "advertiser_account_service_levels": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "advertiser_account_service_levels": []interface {}{},
         "advertiser_account_type":           "none",
         "blocked_by":                        false,
         "blocking":                          false,
@@ -10304,7 +10304,7 @@ map[string]interface {}{
         "description":                       "兵庫〜大阪〜京都〜滋賀をバイクで流してます🏍無言フォローすみません🙏チワワ大好き😍CB1300SF→TMAX530→CBR1000RR→MULTISTRADA 1200 PIKES PEAK→GSX-R1000R→今のバイク&SWISH125cc。#701supermoto #Husqvarna",
         "entities":                          map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
         },
         "ext": map[string]interface {}{
@@ -10495,10 +10495,10 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "1490654743940988928": map[string]interface {}{
-        "advertiser_account_service_levels": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "advertiser_account_service_levels": []interface {}{},
         "advertiser_account_type":           "none",
         "blocked_by":                        false,
         "blocking":                          false,
@@ -10512,7 +10512,7 @@ map[string]interface {}{
         "description":                       "好きなものといろいろ",
         "entities":                          map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
         },
         "ext": map[string]interface {}{
@@ -10564,8 +10564,8 @@ map[string]interface {}{
         "name":                               "おひな",
         "normal_followers_count":             0.000000,
         "notifications":                      false,
-        "pinned_tweet_ids":                   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-        "pinned_tweet_ids_str":               ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "pinned_tweet_ids":                   []interface {}{},
+        "pinned_tweet_ids_str":               []interface {}{},
         "profile_background_color":           "F5F8FA",
         "profile_background_image_url":       nil,
         "profile_background_image_url_https": nil,
@@ -10691,7 +10691,7 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "152279205": map[string]interface {}{
         "advertiser_account_service_levels": []interface {}{
@@ -10710,7 +10710,7 @@ map[string]interface {}{
         "description":             "埼玉に住む、平凡な主婦です。微力ですが平和のために役に立てればと思います。動物も大好きなので写真も時々アップしてます！！趣味はカメラです。ルミックスの一眼レフを使用してます。よろしくお願いいたします。\u3000＃STOPPUTIN\u3000＃STOPWAR\u3000＃カメラ\u3000＃動物\u3000＃ルミックス\u3000＃一眼レフ",
         "entities":                map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
           "url": map[string]interface {}{
             "urls": []interface {}{
@@ -10775,8 +10775,8 @@ map[string]interface {}{
         "name":                               "やまむサクラ",
         "normal_followers_count":             241.000000,
         "notifications":                      false,
-        "pinned_tweet_ids":                   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-        "pinned_tweet_ids_str":               ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "pinned_tweet_ids":                   []interface {}{},
+        "pinned_tweet_ids_str":               []interface {}{},
         "profile_background_color":           "000000",
         "profile_background_image_url":       "http://abs.twimg.com/images/themes/theme3/bg.gif",
         "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme3/bg.gif",
@@ -10910,7 +10910,7 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "158996759": map[string]interface {}{
         "advertiser_account_service_levels": []interface {}{
@@ -11004,8 +11004,8 @@ map[string]interface {}{
         "name":                               "cnn_co_jp",
         "normal_followers_count":             401088.000000,
         "notifications":                      false,
-        "pinned_tweet_ids":                   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-        "pinned_tweet_ids_str":               ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "pinned_tweet_ids":                   []interface {}{},
+        "pinned_tweet_ids_str":               []interface {}{},
         "profile_background_color":           "0099B9",
         "profile_background_image_url":       "http://abs.twimg.com/images/themes/theme4/bg.gif",
         "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme4/bg.gif",
@@ -11088,10 +11088,10 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         true,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "204283796": map[string]interface {}{
-        "advertiser_account_service_levels": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "advertiser_account_service_levels": []interface {}{},
         "advertiser_account_type":           "none",
         "blocked_by":                        false,
         "blocking":                          false,
@@ -11328,7 +11328,7 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "211894038": map[string]interface {}{
         "advertiser_account_service_levels": []interface {}{
@@ -11347,7 +11347,7 @@ map[string]interface {}{
         "description":             "#carp と #sanfrecce とロックと時計と車が大好きな生粋の広島人のオッサンです(笑) #passatb8 乗り♪ #iPhone11 #iPodclassic #urbeats #beatsstudio #ampsair #submariner が必需品。フォロー&リムーブご自由に(^^)",
         "entities":                map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
         },
         "ext": map[string]interface {}{
@@ -11538,10 +11538,10 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "296105184": map[string]interface {}{
-        "advertiser_account_service_levels": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "advertiser_account_service_levels": []interface {}{},
         "advertiser_account_type":           "none",
         "blocked_by":                        false,
         "blocking":                          false,
@@ -11769,7 +11769,7 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "3015949078": map[string]interface {}{
         "advertiser_account_service_levels": []interface {}{
@@ -11791,7 +11791,7 @@ map[string]interface {}{
         "description":             "Google の企業向けクラウド ソリューションです。Google 各種サービスを支えるインフラ、ツール、プラットフォームを提供する Google Cloud Platform や、業務効率化を支援する Google Workspace、Google Maps Platform 等を提供しています。",
         "entities":                map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
           "url": map[string]interface {}{
             "urls": []interface {}{
@@ -11856,8 +11856,8 @@ map[string]interface {}{
         "name":                               "Google Cloud Japan",
         "normal_followers_count":             60346.000000,
         "notifications":                      false,
-        "pinned_tweet_ids":                   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-        "pinned_tweet_ids_str":               ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "pinned_tweet_ids":                   []interface {}{},
+        "pinned_tweet_ids_str":               []interface {}{},
         "profile_background_color":           "ABB8C2",
         "profile_background_image_url":       "http://abs.twimg.com/images/themes/theme1/bg.png",
         "profile_background_image_url_https": "https://abs.twimg.com/images/themes/theme1/bg.png",
@@ -11991,10 +11991,10 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         true,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "319636523": map[string]interface {}{
-        "advertiser_account_service_levels": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "advertiser_account_service_levels": []interface {}{},
         "advertiser_account_type":           "none",
         "blocked_by":                        false,
         "blocking":                          false,
@@ -12008,7 +12008,7 @@ map[string]interface {}{
         "description":                       "shop:LalaHangeul(BASE,SUZURI,Tシャツトリニティ,Zazzle,clubt,Threadlesstee )でTシャツなど販売中 テコンドー黒帯,韓国語,한국어 중급.나가사키에서 태권도를 하시고 싶은 분들이 계시면 메세지 보내 주세요.嫌がらせはスクショ、通報&ブロック。名誉毀損は起訴",
         "entities":                          map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
           "url": map[string]interface {}{
             "urls": []interface {}{
@@ -12212,10 +12212,10 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "3491380453": map[string]interface {}{
-        "advertiser_account_service_levels": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "advertiser_account_service_levels": []interface {}{},
         "advertiser_account_type":           "none",
         "blocked_by":                        false,
         "blocking":                          false,
@@ -12387,7 +12387,7 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "408398570": map[string]interface {}{
         "advertiser_account_service_levels": []interface {}{
@@ -12406,7 +12406,7 @@ map[string]interface {}{
         "description":             "",
         "entities":                map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
         },
         "ext": map[string]interface {}{
@@ -12597,7 +12597,7 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "4175578880": map[string]interface {}{
         "advertiser_account_service_levels": []interface {}{
@@ -12618,7 +12618,7 @@ map[string]interface {}{
         "description":             "エンジニアのキャリア形成を応援したい【転職ドラフト】の公式Twitter！\n\n#転職ドラフトReport #キニナルTechBlog #転職ドラフト体験談 その他エンジニアに関することをつぶやきマス。",
         "entities":                map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
           "url": map[string]interface {}{
             "urls": []interface {}{
@@ -12822,7 +12822,7 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "703185707955650560": map[string]interface {}{
         "advertiser_account_service_levels": []interface {}{
@@ -12841,7 +12841,7 @@ map[string]interface {}{
         "description":             "",
         "entities":                map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
         },
         "ext": map[string]interface {}{
@@ -12893,8 +12893,8 @@ map[string]interface {}{
         "name":                               "Xperia",
         "normal_followers_count":             1.000000,
         "notifications":                      false,
-        "pinned_tweet_ids":                   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-        "pinned_tweet_ids_str":               ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "pinned_tweet_ids":                   []interface {}{},
+        "pinned_tweet_ids_str":               []interface {}{},
         "profile_background_color":           "F5F8FA",
         "profile_background_image_url":       nil,
         "profile_background_image_url_https": nil,
@@ -12972,10 +12972,10 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "71438807": map[string]interface {}{
-        "advertiser_account_service_levels": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "advertiser_account_service_levels": []interface {}{},
         "advertiser_account_type":           "promotable_user",
         "blocked_by":                        false,
         "blocking":                          false,
@@ -13199,10 +13199,10 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "734209428707115008": map[string]interface {}{
-        "advertiser_account_service_levels": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "advertiser_account_service_levels": []interface {}{},
         "advertiser_account_type":           "none",
         "blocked_by":                        false,
         "blocking":                          false,
@@ -13216,7 +13216,7 @@ map[string]interface {}{
         "description":                       "日本を陰ながら支える30代後半。政治経済を中心にRTや呟きます。批判だけなら誰でもできる。ではどうすべきか明確にしない、そんな連中が嫌いです。※早期の憲法改正実施へ。※台湾のTPP加入を応援します。Chinaと対等に接しない現政権に失望しました…",
         "entities":                          map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
         },
         "ext": map[string]interface {}{
@@ -13407,10 +13407,10 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "822604501811085313": map[string]interface {}{
-        "advertiser_account_service_levels": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "advertiser_account_service_levels": []interface {}{},
         "advertiser_account_type":           "none",
         "blocked_by":                        false,
         "blocking":                          false,
@@ -13424,7 +13424,7 @@ map[string]interface {}{
         "description":                       "肉、好きです。\n料理したり参拝したり登城したりラグビー観たり訓練展示やら展示飛行見たり。",
         "entities":                          map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
         },
         "ext": map[string]interface {}{
@@ -13476,8 +13476,8 @@ map[string]interface {}{
         "name":                               "loveMeats",
         "normal_followers_count":             185.000000,
         "notifications":                      false,
-        "pinned_tweet_ids":                   ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
-        "pinned_tweet_ids_str":               ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "pinned_tweet_ids":                   []interface {}{},
+        "pinned_tweet_ids_str":               []interface {}{},
         "profile_background_color":           "F5F8FA",
         "profile_background_image_url":       nil,
         "profile_background_image_url_https": nil,
@@ -13611,7 +13611,7 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "83051609": map[string]interface {}{
         "advertiser_account_service_levels": []interface {}{
@@ -13845,7 +13845,7 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
       "983566591412486144": map[string]interface {}{
         "advertiser_account_service_levels": []interface {}{
@@ -13864,7 +13864,7 @@ map[string]interface {}{
         "description":             "一応ランナーのつもり。\n苦しい練習はあまりしない。\n時々ガジェット、ゲーム(今は #原神 WR59)。\n時々写真( #お散歩ちゃん )\nPB\nハーフ 1:15'44\n10km 33'38\n5km 15'12\n3km 9'03\n1km 2'35",
         "entities":                map[string]interface {}{
           "description": map[string]interface {}{
-            "urls": ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+            "urls": []interface {}{},
           },
           "url": map[string]interface {}{
             "urls": []interface {}{
@@ -14068,7 +14068,7 @@ map[string]interface {}{
         "utc_offset":                                       nil,
         "verified":                                         false,
         "want_retweets":                                    false,
-        "withheld_in_countries":                            ([]interface {})(unsafe.Pointer(uintptr(0x10277a9f0))),
+        "withheld_in_countries":                            []interface {}{},
       },
     },
   },
