@@ -99,6 +99,23 @@ func (p *Printer) Fp(w io.Writer, args ...interface{}) (int, error) {
 	return int(cpn), cperr
 }
 
+// S returns the dumped your specified data with colored string.
+// Spaces are always added between operands and a newline is appended.
+func (p *Printer) S(args ...interface{}) string {
+	var buf bytes.Buffer
+	for i, a := range args {
+		if i > 0 {
+			buf.WriteByte(' ')
+		}
+		dump := dd.Dump(a, p.options.ddOptions...)
+		iterator, _ := lexer.Tokenise(nil, dump)
+		p.options.formatter.Format(&buf, p.options.style, iterator)
+	}
+	buf.WriteByte('\n')
+
+	return buf.String()
+}
+
 // P prints dumped your specified data with colored.
 // Spaces are always added between operands and a newline is appended.
 // It returns the number of bytes written and any write error encountered.
@@ -111,4 +128,10 @@ func P(args ...interface{}) (int, error) {
 // It returns the number of bytes written and any write error encountered.
 func Fp(w io.Writer, args ...interface{}) (int, error) {
 	return defaultPrinter.Fp(w, args...)
+}
+
+// S returns the dumped your specified data with colored string.
+// Spaces are always added between operands and a newline is appended.
+func S(args ...interface{}) string {
+	return defaultPrinter.S(args...)
 }
