@@ -3,7 +3,7 @@
 `dd` dumps Go data structures as valid syntax in Go.
 
 - ✅ Simple API
-- ✅ Support Go 1.16 ~ 1.18 (available generics!)
+- ✅ Support Go 1.16 ~ (available generics!)
 - ✅ Customizable dump format each types
   - Available some options in [`df`](https://github.com/Code-Hex/dd/blob/main/df/df.go) package
 - ✅ Support pretty print
