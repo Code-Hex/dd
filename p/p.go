@@ -1,7 +1,6 @@
 package p
 
 import (
-	"bytes"
 	"io"
 
 	"github.com/Code-Hex/dd"
@@ -76,39 +75,103 @@ func WithFormatter(formatter chroma.Formatter) OptionFunc {
 
 // P prints dumped your specified data with colored.
 // Spaces are always added between operands and a newline is appended.
-// It returns the number of bytes written and any write error encountered.
+// It returns the number of bytes written and any formatting or write error encountered.
 func (p *Printer) P(args ...interface{}) (int, error) {
 	return p.Fp(colorable.NewColorableStdout(), args...)
 }
 
 // Fp prints dumped your specified data with colored and writes to w.
-// Spaces are always added between operands and a newline is appended.
-// It returns the number of bytes written and any write error encountered.
+// Spaces are added between operands and a newline is appended on success.
+// It returns the number of bytes written and the first formatting or write error.
+// Output may be partial on error. Each operand is buffered for tokenization,
+// but formatted output is written directly to w.
 func (p *Printer) Fp(w io.Writer, args ...interface{}) (int, error) {
-	var buf bytes.Buffer
+	out := &countingWriter{writer: w}
 	for i, a := range args {
 		if i > 0 {
-			buf.WriteByte(' ')
+			if _, err := io.WriteString(out, " "); err != nil {
+				return out.n, err
+			}
 		}
 		dump := dd.Dump(a, p.options.ddOptions...)
-		iterator, _ := lexer.Tokenise(nil, dump)
-		p.options.formatter.Format(&buf, p.options.style, iterator)
+		iterator, err := lexer.Tokenise(nil, dump)
+		if err != nil {
+			return out.n, err
+		}
+		err = p.options.formatter.Format(out, p.options.style, iterator)
+		// Some Chroma formatters ignore write errors.
+		if out.err != nil {
+			return out.n, out.err
+		}
+		if err != nil {
+			return out.n, err
+		}
 	}
-	buf.WriteByte('\n')
-	cpn, cperr := io.Copy(w, &buf)
-	return int(cpn), cperr
+	_, err := io.WriteString(out, "\n")
+	return out.n, err
+}
+
+type countingWriter struct {
+	writer  io.Writer
+	n       int
+	err     error
+	scratch []byte
+}
+
+func (w *countingWriter) Write(b []byte) (int, error) {
+	if w.err != nil {
+		return 0, w.err
+	}
+	n, err := w.writer.Write(b)
+	w.n += n
+	if err == nil && n < len(b) {
+		err = io.ErrShortWrite
+	}
+	w.err = err
+	return n, err
+}
+
+func (w *countingWriter) WriteString(s string) (int, error) {
+	if w.err != nil {
+		return 0, w.err
+	}
+	if sw, ok := w.writer.(io.StringWriter); ok {
+		n, err := sw.WriteString(s)
+		w.n += n
+		if err == nil && n < len(s) {
+			err = io.ErrShortWrite
+		}
+		w.err = err
+		return n, err
+	}
+	if w.scratch == nil {
+		w.scratch = make([]byte, 4096)
+	}
+	total := 0
+	for len(s) > 0 {
+		size := copy(w.scratch, s)
+		n, err := w.Write(w.scratch[:size])
+		total += n
+		if err != nil {
+			return total, err
+		}
+		s = s[size:]
+	}
+	return total, nil
 }
 
 // P prints dumped your specified data with colored.
 // Spaces are always added between operands and a newline is appended.
-// It returns the number of bytes written and any write error encountered.
+// It returns the number of bytes written and any formatting or write error encountered.
 func P(args ...interface{}) (int, error) {
 	return defaultPrinter.P(args...)
 }
 
 // Fp prints dumped your specified data with colored and writes to w.
-// Spaces are always added between operands and a newline is appended.
-// It returns the number of bytes written and any write error encountered.
+// Spaces are added between operands and a newline is appended on success.
+// It returns the number of bytes written and the first formatting or write error.
+// Output may be partial on error. Each operand is buffered for tokenization,
+// but formatted output is written directly to w.
 func Fp(w io.Writer, args ...interface{}) (int, error) {
 	return defaultPrinter.Fp(w, args...)
 }
