@@ -100,25 +100,27 @@ func WithBigInt() dd.OptionFunc {
 	)
 }
 
-// WithBigFloat is a wrapper of WithDumpFunc for big.Float.
-// Dumps the numeric values instead of displaying the struct contents.
+// WithBigFloat is a wrapper of WithDumpFunc for *big.Float.
+// Dumps the value, precision, rounding mode, and sign. The accuracy of the
+// operation that produced the value is not preserved.
 func WithBigFloat() dd.OptionFunc {
 	return dd.WithDumpFunc(
 		func(v *big.Float, w dd.Writer) {
+			if v == nil {
+				w.Write("(*big.Float)(nil)")
+				return
+			}
 			w.Write("func() *big.Float ")
-			w.WriteBlock(
-				strings.Join(
-					[]string{
-						"tmp := new(big.Float)",
-						fmt.Sprintf(
-							"tmp.SetString(%q)",
-							v.String(),
-						),
-						"return tmp",
-					},
-					"\n",
-				),
-			)
+			// Hexadecimal mantissas preserve every bit without decimal rounding or
+			// work proportional to the magnitude of the exponent.
+			body := fmt.Sprintf("tmp := new(big.Float).SetPrec(%d).SetMode(big.%s)\ntmp.SetString(%q)\n", v.Prec(), v.Mode(), v.Text('p', 0))
+			if v.Prec() == 0 {
+				// Parsing zero raises its precision to 64.
+				body += "return tmp.SetPrec(0)"
+			} else {
+				body += "return tmp"
+			}
+			w.WriteBlock(body)
 			w.Write("()")
 		},
 	)

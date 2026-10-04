@@ -33,7 +33,7 @@ func TestWithDumpFunc(t *testing.T) {
 		{
 			name:       "big float",
 			v:          big.NewFloat(12345.6789),
-			want:       "func() *big.Float {\n  tmp := new(big.Float)\n  tmp.SetString(\"12345.6789\")\n  return tmp\n}()",
+			want:       "func() *big.Float {\n  tmp := new(big.Float).SetPrec(53).SetMode(big.ToNearestEven)\n  tmp.SetString(\"0x.c0e6b7318fc508p+14\")\n  return tmp\n}()",
 			dumpOption: df.WithBigFloat(),
 		},
 		{
