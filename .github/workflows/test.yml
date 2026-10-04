@@ -13,22 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        go: ['^1.16', '^1.17', '^1.18', '^1.19']
+        go: ['1.16.x', '1.17.x', '1.18.x', '1.19.x', '1.20.x', '1.21.x', '1.22.x', '1.23.x', '1.24.x', '1.25.x', '1.26.x', '1.27.x']
     name: Test on Go ${{ matrix.go }}
     steps:
     - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
-    - uses: actions/setup-go@v2
+      uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go }}
-    - name: Declare some variables
-      id: vars
-      run: |
-        echo "::set-output name=coverage_txt::${RUNNER_TEMP}/coverage.txt"
     - name: Test Coverage (pkg)
-      run: go test ./... -race -coverprofile=${{ steps.vars.outputs.coverage_txt }}
+      run: go test ./... -race -coverprofile=${{ runner.temp }}/coverage.txt
     - name: Upload coverage
-      if: ${{ matrix.go == '^1.19' }}
+      if: ${{ matrix.go == '1.27.x' }}
       uses: codecov/codecov-action@v2
       with:
-        files: ${{ steps.vars.outputs.coverage_txt }}
+        files: ${{ runner.temp }}/coverage.txt
