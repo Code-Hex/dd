@@ -15,7 +15,7 @@ import (
 )
 
 func TestJSONRawMessageRoundTrip(t *testing.T) {
-	cases := []json.RawMessage{nil, {}, []byte("{\"x\":\"a" + string(rune(96)) + "b\"}"), []byte("{\r\n\t\"x\":1\n}"), {0xff, 0, 0xc0}, []byte("{\"x\":\"日本語\"}")}
+	cases := []json.RawMessage{[]byte("{\"x\":\t1}"), nil, {}, []byte("{\"x\":\"a" + string(rune(96)) + "b\"}"), []byte("{\r\n\t\"x\":1\n}"), {0xff, 0, 0xc0}, []byte("{\"x\":\"日本語\"}")}
 	var source strings.Builder
 	source.WriteString("package main\nimport(\"bytes\";\"encoding/json\")\nfunc main(){\n")
 	for i, value := range cases {
