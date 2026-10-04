@@ -1,6 +1,10 @@
 package dd
 
-import "reflect"
+import (
+	"io"
+	"reflect"
+	"strings"
+)
 
 type UintFormat int
 
@@ -17,7 +21,19 @@ const (
 
 // Dump dumps specified data.
 func Dump(data interface{}, opts ...OptionFunc) string {
-	return newDataDumper(data, opts...).build().String()
+	var out strings.Builder
+	_ = DumpTo(&out, data, opts...)
+	return out.String()
+}
+
+// DumpTo writes the dump to w without adding a trailing newline.
+// It returns the first write error, including io.ErrShortWrite. Output may be partial.
+// Slices and structs stream directly; map alignment and custom formatters may buffer.
+// The caller owns w and is responsible for flushing or closing it.
+func DumpTo(w io.Writer, data interface{}, opts ...OptionFunc) error {
+	d := newDataDumper(checkedWriter{w}, data, opts...)
+	d.build()
+	return d.err
 }
 
 // Writer is a writer for dump string.
@@ -70,4 +86,22 @@ func WithListBreakLineSize(typ interface{}, size int) OptionFunc {
 		tmp := reflect.TypeOf(typ)
 		o.listGroupingSize[tmp] = size
 	}
+}
+
+// checkedWriter also catches short writes made while flushing a tabwriter.
+type checkedWriter struct{ io.Writer }
+
+func (w checkedWriter) Write(p []byte) (int, error) {
+	n, err := w.Writer.Write(p)
+	if err == nil && n != len(p) {
+		err = io.ErrShortWrite
+	}
+	return n, err
+}
+func (w checkedWriter) WriteString(s string) (int, error) {
+	n, err := io.WriteString(w.Writer, s)
+	if err == nil && n != len(s) {
+		err = io.ErrShortWrite
+	}
+	return n, err
 }

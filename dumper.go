@@ -1,13 +1,11 @@
 package dd
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"reflect"
 	"strconv"
 	"strings"
-	"sync"
 	"text/tabwriter"
 
 	"github.com/Code-Hex/dd/internal/sort"
@@ -34,14 +32,20 @@ func newDefaultOptions() *options {
 	}
 }
 
+// A slice view or a differently typed pointer can share an address without a cycle.
+type visit struct {
+	typ     reflect.Type
+	pointer uintptr
+	length  int
+}
+
 type dumper struct {
-	buf           *strings.Builder
-	tw            *tabwriter.Writer
-	value         reflect.Value
-	depth         int
-	visitPointers map[uintptr]bool
-	clonePool     *sync.Pool
-	// options
+	w                io.Writer
+	err              error
+	value            reflect.Value
+	depth            int
+	indentSize       int
+	visitPointers    map[visit]bool
 	exportedOnly     bool
 	omitEmptyFields  bool
 	uintFormat       UintFormat
@@ -49,74 +53,55 @@ type dumper struct {
 	listGroupingSize map[reflect.Type]int
 }
 
-var _ interface {
-	fmt.Stringer
-} = (*dumper)(nil)
-
-func newDataDumper(obj interface{}, optFuncs ...OptionFunc) *dumper {
+func newDataDumper(w io.Writer, obj interface{}, optFuncs ...OptionFunc) *dumper {
 	opts := newDefaultOptions()
-	// apply options
 	for _, apply := range optFuncs {
 		apply(opts)
 	}
-	clonePool := &sync.Pool{
-		New: func() interface{} {
-			buf := new(strings.Builder)
-			return &dumper{
-				buf: buf,
-				tw:  tabwriter.NewWriter(buf, opts.indentSize, 0, 1, ' ', 0),
-			}
-		},
+	if opts.indentSize < 0 {
+		panic("negative indent")
 	}
-	ret := clonePool.Get().(*dumper)
-	ret.value = valueOf(obj, true)
-	ret.clonePool = clonePool
-	ret.visitPointers = make(map[uintptr]bool)
-	ret.clonePool = clonePool
-	ret.exportedOnly = opts.exportedOnly
-	ret.omitEmptyFields = opts.omitEmptyFields
-	ret.uintFormat = opts.uintFormat
-	ret.convertibleTypes = opts.convertibleTypes
-	ret.listGroupingSize = opts.listGroupingSize
-	return ret
+	if opts.indentSize == 0 {
+		opts.indentSize = 1
+	}
+	return &dumper{
+		w: w, value: valueOf(obj, true), indentSize: opts.indentSize,
+		visitPointers: make(map[visit]bool),
+		exportedOnly:  opts.exportedOnly, omitEmptyFields: opts.omitEmptyFields,
+		uintFormat: opts.uintFormat, convertibleTypes: opts.convertibleTypes,
+		listGroupingSize: opts.listGroupingSize,
+	}
 }
 
-func (d *dumper) clone(obj interface{}) *dumper {
-	child := d.clonePool.Get().(*dumper)
-	child.value = valueOf(obj, false)
-	child.depth = d.depth
-	child.visitPointers = d.visitPointers
-	child.clonePool = d.clonePool
-	child.exportedOnly = d.exportedOnly
-	child.omitEmptyFields = d.omitEmptyFields
-	child.uintFormat = d.uintFormat
-	child.convertibleTypes = d.convertibleTypes
-	child.listGroupingSize = d.listGroupingSize
-	return child
+func (d *dumper) writeValue(value reflect.Value) {
+	if d.err != nil {
+		return
+	}
+	previous := d.value
+	d.value = value
+	d.build()
+	d.value = previous
 }
 
-func dumpclone(d *dumper, obj interface{}) string {
-	cloned := d.clone(obj).build()
-	ret := cloned.String()
-	cloned.release()
-	return ret
-}
-
-func (d *dumper) release() {
-	d.buf.Reset()
-	d.clonePool.Put(d)
-}
-
-func (d *dumper) indent() string {
-	return strings.Repeat("\t", d.depth)
-}
-
-func (d *dumper) String() string {
-	d.tw.Flush()
-	return d.buf.String()
+// Keep tab expansion local to maps and user-provided formatting.
+func (d *dumper) withTabs(f func()) {
+	if d.err != nil {
+		return
+	}
+	previous := d.w
+	tw := tabwriter.NewWriter(previous, d.indentSize, 0, 1, ' ', 0)
+	d.w = tw
+	f()
+	if d.err == nil {
+		d.err = tw.Flush()
+	}
+	d.w = previous
 }
 
 func (d *dumper) build() *dumper {
+	if d.err != nil {
+		return d
+	}
 	kind := d.value.Kind()
 	if kind == reflect.Invalid {
 		d.writeRaw("nil")
@@ -125,7 +110,7 @@ func (d *dumper) build() *dumper {
 
 	convertFunc, ok := d.convertibleTypes[d.value.Type()]
 	if ok {
-		convertFunc(d.value, &dumpWriter{d})
+		d.withTabs(func() { convertFunc(d.value, &dumpWriter{d}) })
 		return d
 	}
 	switch kind {
@@ -233,12 +218,14 @@ func (d *dumper) writeFunc() {
 			return
 		}
 
-		zeroValues := make([]string, 0, numout)
-		for i := 0; i < numout; i++ {
-			outTyp := typ.Out(i)
-			zeroValues = append(zeroValues, d.zeroValue(outTyp))
+		d.writeIndentedRaw("return ")
+		for i := 0; i < numout && d.err == nil; i++ {
+			if i > 0 {
+				d.writeRaw(", ")
+			}
+			d.writeZeroValue(typ.Out(i))
 		}
-		d.indentedPrintf("return %s\n", strings.Join(zeroValues, ", "))
+		d.writeRaw("\n")
 	})
 	if isNotAnonymous {
 		d.writeRaw(")")
@@ -247,14 +234,15 @@ func (d *dumper) writeFunc() {
 
 //go:generate go run cmd/zero/main.go
 
-func (d *dumper) zeroValue(rt reflect.Type) string {
+func (d *dumper) writeZeroValue(rt reflect.Type) {
 	// Only default primitive output is independent of options and nesting depth.
 	if len(d.convertibleTypes) == 0 && d.uintFormat == DecimalUint {
 		if zero, ok := zeroPrimitives[rt]; ok {
-			return zero
+			d.writeRaw(zero)
+			return
 		}
 	}
-	return dumpclone(d, reflect.Zero(rt))
+	d.writeValue(reflect.Zero(rt))
 }
 
 func (d *dumper) writePtr() {
@@ -279,7 +267,8 @@ func (d *dumper) writePtr() {
 		d.writePointer()
 		return
 	}
-	d.printf("&%s", dumpclone(d, deref))
+	d.writeRaw("&")
+	d.writeValue(deref)
 }
 
 func (d *dumper) writeStruct() {
@@ -311,7 +300,12 @@ func (d *dumper) writeStruct() {
 			if !isExported(field) && fieldVal.CanAddr() {
 				fieldVal = getUnexportedField(fieldVal)
 			}
-			d.indentedPrintf("%s: %s,\n", field.Name, dumpclone(d, fieldVal))
+			if d.err != nil {
+				return
+			}
+			d.indentedPrintf("%s: ", field.Name)
+			d.writeValue(fieldVal)
+			d.writeRaw(",\n")
 		}
 	})
 }
@@ -345,15 +339,22 @@ func (d *dumper) writeMap() {
 
 	d.writeRaw(d.value.Type().String())
 
-	d.writeBlock(func() {
-		keys := sort.Keys(d.value.MapKeys())
-		for _, key := range keys {
-			val := d.value.MapIndex(key)
-			d.indentedPrintf("%s:\t%s,\n",
-				dumpclone(d, key),
-				dumpclone(d, val),
-			)
-		}
+	d.withTabs(func() {
+		d.writeBlock(func() {
+			keys := sort.Keys(d.value.MapKeys())
+			for _, key := range keys {
+				if d.err != nil {
+					return
+				}
+				val := d.value.MapIndex(key)
+				// Preserve tabwriter's indentation columns for multiline keys.
+				d.writeRaw(strings.Repeat("\t", d.depth))
+				d.writeValue(key)
+				d.writeRaw(":\t")
+				d.writeValue(val)
+				d.writeRaw(",\n")
+			}
+		})
 	})
 }
 
@@ -391,14 +392,18 @@ func (d *dumper) writeList() {
 			size = s
 		}
 		var breakLine bool
-		for i := 0; i < d.value.Len(); i++ {
+		for i := 0; i < d.value.Len() && d.err == nil; i++ {
 			elem := d.value.Index(i)
 			mod := (i + 1) % size
 			breakLine = mod == 0
 			if size == 1 || mod == 1 {
-				d.indentedPrintf("%s,", dumpclone(d, elem))
+				d.writeIndent()
+				d.writeValue(elem)
+				d.writeRaw(",")
 			} else {
-				d.printf(" %s,", dumpclone(d, elem))
+				d.writeRaw(" ")
+				d.writeValue(elem)
+				d.writeRaw(",")
 			}
 			if breakLine {
 				d.writeRaw("\n")
@@ -413,7 +418,7 @@ func (d *dumper) writeList() {
 func (d *dumper) writeInterface() {
 	elem := d.value.Elem()
 	if elem.IsValid() {
-		d.writeRaw(dumpclone(d, elem))
+		d.writeValue(elem)
 		return
 	}
 	d.writeRaw("nil")
@@ -491,19 +496,25 @@ func (d *dumper) writePointer() {
 }
 
 func (d *dumper) writeVisitedPointer() (func(), bool) {
-	pointer := d.value.Pointer()
-	if d.visitPointers[pointer] {
+	key := visit{typ: d.value.Type(), pointer: d.value.Pointer()}
+	if d.value.Kind() == reflect.Slice {
+		key.length = d.value.Len()
+	}
+	if d.visitPointers[key] {
 		d.writePointer()
 		return nil, true
 	}
-	d.visitPointers[pointer] = true
+	d.visitPointers[key] = true
 	return func() {
-		d.visitPointers[pointer] = false
+		delete(d.visitPointers, key)
 	}, false
 }
 
 func (d *dumper) writeBlock(f func()) {
 	d.writeRaw("{\n")
+	if d.err != nil {
+		return
+	}
 	d.depth++
 	f()
 	d.depth--
@@ -522,7 +533,16 @@ func (d *dumper) writeIndent() {
 	if d.depth == 0 {
 		return
 	}
-	d.writeRaw(d.indent())
+	// Write indentation in bounded chunks, even for very deep values.
+	const spaces = "                                                                "
+	for remaining := d.depth * d.indentSize; remaining > 0 && d.err == nil; {
+		n := remaining
+		if n > len(spaces) {
+			n = len(spaces)
+		}
+		d.writeRaw(spaces[:n])
+		remaining -= n
+	}
 }
 
 func (d *dumper) writeIndentedRaw(s string) {
@@ -535,13 +555,22 @@ func (d *dumper) indentedPrintf(format string, a ...interface{}) {
 	d.printf(format, a...)
 }
 
-// writeRaw appends the contents of s to p's buffer.
+// writeRaw preserves the first output error.
 func (d *dumper) writeRaw(s string) {
-	io.WriteString(d.tw, s)
+	if d.err != nil {
+		return
+	}
+	n, err := io.WriteString(d.w, s)
+	if err == nil && n != len(s) {
+		err = io.ErrShortWrite
+	}
+	d.err = err
 }
 
 func (d *dumper) printf(format string, a ...interface{}) {
-	fmt.Fprintf(d.tw, format, a...)
+	if d.err == nil {
+		d.writeRaw(fmt.Sprintf(format, a...))
+	}
 }
 
 type dumpWriter struct{ *dumper }
@@ -552,10 +581,18 @@ func (d *dumpWriter) Write(s string) { d.dumper.writeRaw(s) }
 func (d *dumpWriter) WriteBlock(s string) {
 	d.dumper.writeRaw("{\n")
 	d.dumper.depth++
-	scanner := bufio.NewScanner(strings.NewReader(s))
-	for scanner.Scan() {
-		d.dumper.writeIndentedRaw(scanner.Text() + "\n")
+	for s != "" && d.dumper.err == nil {
+		line := s
+		if i := strings.IndexByte(s, '\n'); i >= 0 {
+			line, s = s[:i], s[i+1:]
+		} else {
+			s = ""
+		}
+		d.dumper.writeRaw(strings.Repeat("\t", d.dumper.depth))
+		d.dumper.writeRaw(strings.TrimSuffix(line, "\r"))
+		d.dumper.writeRaw("\n")
 	}
 	d.dumper.depth--
-	d.dumper.writeIndentedRaw("}")
+	d.dumper.writeRaw(strings.Repeat("\t", d.dumper.depth))
+	d.dumper.writeRaw("}")
 }

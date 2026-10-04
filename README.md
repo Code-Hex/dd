@@ -52,6 +52,48 @@ fmt.Println(dd.Dump(data, dd.WithIndent(4)))
 // }
 ```
 
+### Streaming large values
+
+Use `DumpTo` to write directly to an `io.Writer`. `Dump` wraps the same
+implementation with a `strings.Builder`.
+
+```go
+out := bufio.NewWriter(os.Stdout)
+if err := dd.DumpTo(out, data, dd.WithOmitEmptyFields()); err != nil {
+    return err
+}
+return out.Flush()
+```
+
+`DumpTo` adds no trailing newline and returns the first write error, including
+`io.ErrShortWrite`. The output may be partial on failure. It does not close or
+flush the caller's writer. Use a buffered writer for files or network connections
+to combine small writes.
+
+Structs and lists stream without building strings for each subtree. Cycle
+tracking retains only the active traversal path. Maps still sort their keys and
+use a tabwriter buffer to preserve column alignment; custom formatters also use
+a tabwriter buffer. Individual quoted strings require temporary storage.
+Streaming therefore avoids retaining the complete output for ordinary structs
+and lists, but does not promise constant memory for every value.
+
+Very deep values still use the Go call stack, and indentation makes the output
+of a linked chain grow quadratically with depth. Choose input sizes appropriate
+to available resources. Regression tests cover one million list elements and a
+chain of depth 2048.
+
+Performance measurements on Go 1.26.5 (same machine, median of five 100 ms runs):
+
+| Workload | Previous Dump | Streaming-based Dump | Allocated bytes reduction |
+| --- | ---: | ---: | ---: |
+| 10,000 records | 52.5 ms | 11.1 ms | 56% |
+| Parsed Go AST, 100 functions | 77.4 ms | 8.85 ms | 92% |
+| Linked chain, depth 256 | 183.6 ms | 0.42 ms | 99.8% |
+
+These are workload-specific allocation totals per call, not peak memory or
+performance guarantees. Reproduce with
+`go test -run '^$' -bench 'BenchmarkDump(To)?$' -benchmem -benchtime=100ms -count=5`.
+
 ### Debugging purpose
 
 Add this import line to the file you're working in:
