@@ -137,3 +137,65 @@ func TestFpSeparatorAndNewlineErrors(t *testing.T) {
 		})
 	}
 }
+
+type stringOnlyWriter struct {
+	bytes.Buffer
+	err   error
+	limit int
+	calls int
+}
+
+func (w *stringOnlyWriter) Write(b []byte) (int, error) {
+	return 0, errors.New("Write called instead of WriteString")
+}
+func (w *stringOnlyWriter) WriteString(s string) (int, error) {
+	w.calls++
+	if len(s) > w.limit {
+		s = s[:w.limit]
+	}
+	n, _ := w.Buffer.WriteString(s)
+	w.limit -= n
+	return n, w.err
+}
+
+func TestFpStringWriter(t *testing.T) {
+	writeErr := errors.New("write failed")
+	for _, tc := range []struct {
+		name         string
+		limit        int
+		err, wantErr error
+		want         string
+	}{
+		{"success", 100, nil, nil, "abc\n"},
+		{"short", 2, nil, io.ErrShortWrite, "ab"},
+		{"error", 2, writeErr, writeErr, "ab"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			out := &stringOnlyWriter{limit: tc.limit, err: tc.err}
+			formatter := chroma.FormatterFunc(func(w io.Writer, _ *chroma.Style, _ chroma.Iterator) error {
+				_, err := io.WriteString(w, "abc")
+				if err != nil {
+					io.WriteString(w, "ignored")
+				}
+				return err
+			})
+			n, err := p.New(p.WithFormatter(formatter)).Fp(out, 1)
+			if n != len(tc.want) || err != tc.wantErr || out.String() != tc.want || (tc.wantErr != nil && out.calls != 1) {
+				t.Fatalf("n=%d err=%v output=%q calls=%d", n, err, out.String(), out.calls)
+			}
+		})
+	}
+}
+
+func TestFpLargeStringPlainWriter(t *testing.T) {
+	data := strings.Repeat("x", 10000)
+	out := &limitedWriter{limit: 20000}
+	formatter := chroma.FormatterFunc(func(w io.Writer, _ *chroma.Style, _ chroma.Iterator) error {
+		_, err := io.WriteString(w, data)
+		return err
+	})
+	n, err := p.New(p.WithFormatter(formatter)).Fp(out, 1)
+	if n != len(data)+1 || err != nil || out.buf.String() != data+"\n" || out.calls < 4 {
+		t.Fatalf("n=%d err=%v calls=%d", n, err, out.calls)
+	}
+}

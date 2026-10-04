@@ -112,9 +112,10 @@ func (p *Printer) Fp(w io.Writer, args ...interface{}) (int, error) {
 }
 
 type countingWriter struct {
-	writer io.Writer
-	n      int
-	err    error
+	writer  io.Writer
+	n       int
+	err     error
+	scratch []byte
 }
 
 func (w *countingWriter) Write(b []byte) (int, error) {
@@ -128,6 +129,35 @@ func (w *countingWriter) Write(b []byte) (int, error) {
 	}
 	w.err = err
 	return n, err
+}
+
+func (w *countingWriter) WriteString(s string) (int, error) {
+	if w.err != nil {
+		return 0, w.err
+	}
+	if sw, ok := w.writer.(io.StringWriter); ok {
+		n, err := sw.WriteString(s)
+		w.n += n
+		if err == nil && n < len(s) {
+			err = io.ErrShortWrite
+		}
+		w.err = err
+		return n, err
+	}
+	if w.scratch == nil {
+		w.scratch = make([]byte, 4096)
+	}
+	total := 0
+	for len(s) > 0 {
+		size := copy(w.scratch, s)
+		n, err := w.Write(w.scratch[:size])
+		total += n
+		if err != nil {
+			return total, err
+		}
+		s = s[size:]
+	}
+	return total, nil
 }
 
 // P prints dumped your specified data with colored.
