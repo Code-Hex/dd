@@ -27,7 +27,7 @@ func TestWithDumpFunc(t *testing.T) {
 		{
 			name:       "big int",
 			v:          big.NewInt(10),
-			want:       "func() *big.Int {\n  tmp := new(big.Int)\n  tmp.SetString(\"10\")\n  return tmp\n}()",
+			want:       "func() *big.Int {\n  tmp := new(big.Int)\n  tmp.SetString(\"10\", 10)\n  return tmp\n}()",
 			dumpOption: df.WithBigInt(),
 		},
 		{

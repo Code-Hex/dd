@@ -81,13 +81,17 @@ func WithTime(format string) dd.OptionFunc {
 func WithBigInt() dd.OptionFunc {
 	return dd.WithDumpFunc(
 		func(v *big.Int, w dd.Writer) {
+			if v == nil {
+				w.Write("(*big.Int)(nil)")
+				return
+			}
 			w.Write("func() *big.Int ")
 			w.WriteBlock(
 				strings.Join(
 					[]string{
 						"tmp := new(big.Int)",
 						fmt.Sprintf(
-							"tmp.SetString(%q)",
+							"tmp.SetString(%q, 10)",
 							v.String(),
 						),
 						"return tmp",
