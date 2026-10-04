@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"strconv"
 	"strings"
 	"time"
 
@@ -44,10 +45,21 @@ func WithRichBytes() dd.OptionFunc {
 func WithJSONRawMessage() dd.OptionFunc {
 	return dd.WithDumpFunc(
 		func(v json.RawMessage, w dd.Writer) {
+			if v == nil {
+				w.Write("json.RawMessage(nil)")
+				return
+			}
+			text := string(v)
 			w.Write("json.RawMessage(")
-			w.Write("`")
-			w.Write(string(v))
-			w.Write("`")
+			// Tabs in raw literals would be expanded by the custom formatter's
+			// tabwriter. Other unsafe bytes must be escaped for valid Go source.
+			if strconv.CanBackquote(text) && !strings.ContainsRune(text, '\t') {
+				w.Write("`")
+				w.Write(text)
+				w.Write("`")
+			} else {
+				w.Write(strconv.Quote(text))
+			}
 			w.Write(")")
 		},
 	)
