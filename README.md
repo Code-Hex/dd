@@ -73,7 +73,7 @@ to combine small writes.
 Structs and lists stream without building strings for each subtree. Cycle
 tracking retains only the active traversal path. Maps still sort their keys and
 use a tabwriter buffer to preserve column alignment; custom formatters also use
-a tabwriter buffer. Individual quoted strings require temporary storage.
+a tabwriter buffer. Quoted strings and numeric tokens reuse bounded scratch buffers.
 Streaming therefore avoids retaining the complete output for ordinary structs
 and lists, but does not promise constant memory for every value.
 

@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"text/tabwriter"
+	"unicode/utf8"
 
 	"github.com/Code-Hex/dd/internal/sort"
 )
@@ -40,6 +41,7 @@ type visit struct {
 }
 
 type dumper struct {
+	scratch          []byte
 	w                io.Writer
 	err              error
 	value            reflect.Value
@@ -303,7 +305,9 @@ func (d *dumper) writeStruct() {
 			if d.err != nil {
 				return
 			}
-			d.indentedPrintf("%s: ", field.Name)
+			d.writeIndent()
+			d.writeRaw(field.Name)
+			d.writeRaw(": ")
 			d.writeValue(fieldVal)
 			d.writeRaw(",\n")
 		}
@@ -427,7 +431,8 @@ func (d *dumper) writeInterface() {
 func (d *dumper) writeNumber() {
 	switch d.value.Kind() {
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		d.printf("%d", d.value.Int())
+		d.scratch = strconv.AppendInt(d.scratch[:0], d.value.Int(), 10)
+		d.writeBytes(d.scratch)
 		return
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
 		d.writeUnsignedInt()
@@ -484,7 +489,8 @@ func (d *dumper) writeUnsignedInt() {
 			return
 		}
 	}
-	d.writeRaw(strconv.FormatUint(d.value.Uint(), 10))
+	d.scratch = strconv.AppendUint(d.scratch[:0], d.value.Uint(), 10)
+	d.writeBytes(d.scratch)
 }
 
 func (d *dumper) writePointer() {
@@ -526,7 +532,25 @@ func (d *dumper) writeBool(b bool) {
 }
 
 func (d *dumper) writeString(s string) {
-	d.writeRaw(strconv.Quote(s))
+	d.writeRaw("\"")
+	for len(s) > 0 && d.err == nil {
+		n := len(s)
+		if n > 4096 {
+			n = 4096
+			// Do not split a valid UTF-8 sequence across quoted chunks.
+			for n > 0 && !utf8.RuneStart(s[n]) {
+				n--
+			}
+			if n == 0 {
+				// A run of invalid continuation bytes can be split anywhere.
+				n = 4096
+			}
+		}
+		d.scratch = strconv.AppendQuote(d.scratch[:0], s[:n])
+		d.writeBytes(d.scratch[1 : len(d.scratch)-1])
+		s = s[n:]
+	}
+	d.writeRaw("\"")
 }
 
 func (d *dumper) writeIndent() {
@@ -550,11 +574,6 @@ func (d *dumper) writeIndentedRaw(s string) {
 	d.writeRaw(s)
 }
 
-func (d *dumper) indentedPrintf(format string, a ...interface{}) {
-	d.writeIndent()
-	d.printf(format, a...)
-}
-
 // writeRaw preserves the first output error.
 func (d *dumper) writeRaw(s string) {
 	if d.err != nil {
@@ -567,9 +586,20 @@ func (d *dumper) writeRaw(s string) {
 	d.err = err
 }
 
+func (d *dumper) writeBytes(p []byte) {
+	if d.err != nil {
+		return
+	}
+	n, err := d.w.Write(p)
+	if err == nil && n != len(p) {
+		err = io.ErrShortWrite
+	}
+	d.err = err
+}
+
 func (d *dumper) printf(format string, a ...interface{}) {
 	if d.err == nil {
-		d.writeRaw(fmt.Sprintf(format, a...))
+		_, d.err = fmt.Fprintf(d.w, format, a...)
 	}
 }
 

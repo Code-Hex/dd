@@ -31,7 +31,7 @@ func Dump(data interface{}, opts ...OptionFunc) string {
 // Slices and structs stream directly; map alignment and custom formatters may buffer.
 // The caller owns w and is responsible for flushing or closing it.
 func DumpTo(w io.Writer, data interface{}, opts ...OptionFunc) error {
-	d := newDataDumper(checkedWriter{w}, data, opts...)
+	d := newDataDumper(&checkedWriter{Writer: w}, data, opts...)
 	d.build()
 	return d.err
 }
@@ -89,19 +89,39 @@ func WithListBreakLineSize(typ interface{}, size int) OptionFunc {
 }
 
 // checkedWriter also catches short writes made while flushing a tabwriter.
-type checkedWriter struct{ io.Writer }
+type checkedWriter struct {
+	io.Writer
+	scratch []byte
+}
 
-func (w checkedWriter) Write(p []byte) (int, error) {
+func (w *checkedWriter) Write(p []byte) (int, error) {
 	n, err := w.Writer.Write(p)
 	if err == nil && n != len(p) {
 		err = io.ErrShortWrite
 	}
 	return n, err
 }
-func (w checkedWriter) WriteString(s string) (int, error) {
-	n, err := io.WriteString(w.Writer, s)
-	if err == nil && n != len(s) {
-		err = io.ErrShortWrite
+func (w *checkedWriter) WriteString(s string) (int, error) {
+	if sw, ok := w.Writer.(io.StringWriter); ok {
+		n, err := sw.WriteString(s)
+		if err == nil && n != len(s) {
+			err = io.ErrShortWrite
+		}
+		return n, err
 	}
-	return n, err
+	// Reuse bounded storage instead of allocating []byte(s) for every token.
+	if w.scratch == nil {
+		w.scratch = make([]byte, 4096)
+	}
+	total := 0
+	for len(s) > 0 {
+		size := copy(w.scratch, s)
+		n, err := w.Write(w.scratch[:size])
+		total += n
+		if err != nil {
+			return total, err
+		}
+		s = s[size:]
+	}
+	return total, nil
 }

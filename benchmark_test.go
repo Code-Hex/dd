@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/parser"
 	"go/token"
+	"io"
 	"strings"
 	"testing"
 
@@ -69,6 +70,38 @@ func BenchmarkDump(b *testing.B) {
 		b.ReportAllocs()
 		for i := 0; i < b.N; i++ {
 			benchmarkDump = dd.Dump(file, dd.WithOmitEmptyFields())
+		}
+	})
+}
+
+type plainDiscard struct{}
+
+func (plainDiscard) Write(p []byte) (int, error) { return len(p), nil }
+
+func BenchmarkWriterPaths(b *testing.B) {
+	for _, writer := range []struct {
+		name string
+		w    io.Writer
+	}{{"StringWriter", io.Discard}, {"Writer", plainDiscard{}}} {
+		b.Run(writer.name, func(b *testing.B) {
+			value := make([]int, 10000)
+			b.ReportAllocs()
+			for i := 0; i < b.N; i++ {
+				if err := dd.DumpTo(writer.w, value); err != nil {
+					b.Fatal(err)
+				}
+			}
+		})
+	}
+	b.Run("LargeString", func(b *testing.B) {
+		value := strings.Repeat("a", 1<<20)
+		b.SetBytes(int64(len(value)))
+		b.ReportAllocs()
+		b.ResetTimer()
+		for i := 0; i < b.N; i++ {
+			if err := dd.DumpTo(io.Discard, value); err != nil {
+				b.Fatal(err)
+			}
 		}
 	})
 }

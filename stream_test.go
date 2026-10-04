@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"math/rand"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -181,5 +183,92 @@ func TestCustomBlockTabs(t *testing.T) {
 	got := dd.Dump(0, dd.WithIndent(4), dd.WithDumpFunc(func(v int, w dd.Writer) { w.WriteBlock("a\tb") }))
 	if want := "{\n    a   b\n}"; got != want {
 		t.Fatalf("want %q, got %q", want, got)
+	}
+}
+
+func TestStreamQuotedStrings(t *testing.T) {
+	cases := []string{"", "quote\" slash\\ newline\n", strings.Repeat("a", 4095) + "世界", strings.Repeat("\x80", 8193), strings.Repeat("é", 4096), strings.Repeat("\xff\x00\u2028", 2048)}
+	random := rand.New(rand.NewSource(1))
+	for _, size := range []int{4095, 4096, 4097, 12000} {
+		data := make([]byte, size)
+		random.Read(data)
+		cases = append(cases, string(data))
+	}
+	for _, value := range cases {
+		var out bytes.Buffer
+		if err := dd.DumpTo(&out, value); err != nil {
+			t.Fatal(err)
+		}
+		if want := strconv.Quote(value); out.String() != want {
+			t.Fatalf("quoted output differs for %d bytes", len(value))
+		}
+	}
+}
+
+type failPlainWriter struct {
+	calls int
+	err   error
+}
+
+func (w *failPlainWriter) Write(p []byte) (int, error) { w.calls++; return len(p) / 2, w.err }
+
+func TestAllWritePathsStop(t *testing.T) {
+	sentinel := errors.New("destination failed")
+	for _, value := range []interface{}{1, 1.5, strings.Repeat("é", 8192), map[string]int{"a": 1}} {
+		for _, failure := range []error{nil, sentinel} {
+			w := &failPlainWriter{err: failure}
+			got := dd.DumpTo(w, value)
+			want := failure
+			if want == nil {
+				want = io.ErrShortWrite
+			}
+			if got != want || w.calls != 1 {
+				t.Fatalf("got %v after %d calls; want %v after one call", got, w.calls, want)
+			}
+		}
+	}
+}
+
+func TestPlainWriterOutput(t *testing.T) {
+	var out bytes.Buffer
+	// Expose only Write to exercise the bounded string-to-byte adapter.
+	dst := struct{ io.Writer }{&out}
+	value := strings.Repeat("a", 16384)
+	if err := dd.DumpTo(dst, value); err != nil {
+		t.Fatal(err)
+	}
+	if out.String() != strconv.Quote(value) {
+		t.Fatal("plain writer output differs")
+	}
+}
+
+type delayedPlainWriter struct {
+	successes, calls int
+	err              error
+}
+
+func (w *delayedPlainWriter) Write(p []byte) (int, error) {
+	w.calls++
+	if w.calls > w.successes {
+		return len(p) / 2, w.err
+	}
+	return len(p), nil
+}
+func TestWriteFailuresAfterProgress(t *testing.T) {
+	sentinel := errors.New("late failure")
+	for _, value := range []interface{}{strings.Repeat("x", 20000), []float64{1.5, 2.5, 3.5}, map[string]int{"a": 1, "b": 2}} {
+		for _, successes := range []int{1, 2} {
+			for _, failure := range []error{nil, sentinel} {
+				w := &delayedPlainWriter{successes: successes, err: failure}
+				got := dd.DumpTo(w, value)
+				want := failure
+				if want == nil {
+					want = io.ErrShortWrite
+				}
+				if got != want || w.calls != successes+1 {
+					t.Fatalf("%T: got %v, calls=%d", value, got, w.calls)
+				}
+			}
+		}
 	}
 }
