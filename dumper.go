@@ -17,6 +17,7 @@ type dumpFunc func(reflect.Value, Writer)
 
 type options struct {
 	exportedOnly     bool
+	omitEmptyFields  bool
 	indentSize       int
 	uintFormat       UintFormat
 	convertibleTypes map[reflect.Type]dumpFunc
@@ -34,15 +35,15 @@ func newDefaultOptions() *options {
 }
 
 type dumper struct {
-	buf              *strings.Builder
-	tw               *tabwriter.Writer
-	value            reflect.Value
-	depth            int
-	visitPointers    map[uintptr]bool
-	cachedZeroValues map[reflect.Type]string
-	clonePool        *sync.Pool
+	buf           *strings.Builder
+	tw            *tabwriter.Writer
+	value         reflect.Value
+	depth         int
+	visitPointers map[uintptr]bool
+	clonePool     *sync.Pool
 	// options
 	exportedOnly     bool
+	omitEmptyFields  bool
 	uintFormat       UintFormat
 	convertibleTypes map[reflect.Type]dumpFunc
 	listGroupingSize map[reflect.Type]int
@@ -71,9 +72,9 @@ func newDataDumper(obj interface{}, optFuncs ...OptionFunc) *dumper {
 	ret.value = valueOf(obj, true)
 	ret.clonePool = clonePool
 	ret.visitPointers = make(map[uintptr]bool)
-	ret.cachedZeroValues = zeroPrimitives
 	ret.clonePool = clonePool
 	ret.exportedOnly = opts.exportedOnly
+	ret.omitEmptyFields = opts.omitEmptyFields
 	ret.uintFormat = opts.uintFormat
 	ret.convertibleTypes = opts.convertibleTypes
 	ret.listGroupingSize = opts.listGroupingSize
@@ -85,9 +86,9 @@ func (d *dumper) clone(obj interface{}) *dumper {
 	child.value = valueOf(obj, false)
 	child.depth = d.depth
 	child.visitPointers = d.visitPointers
-	child.cachedZeroValues = d.cachedZeroValues
 	child.clonePool = d.clonePool
 	child.exportedOnly = d.exportedOnly
+	child.omitEmptyFields = d.omitEmptyFields
 	child.uintFormat = d.uintFormat
 	child.convertibleTypes = d.convertibleTypes
 	child.listGroupingSize = d.listGroupingSize
@@ -199,9 +200,27 @@ func (d *dumper) writeFunc() {
 			if i > 0 {
 				d.writeRaw(", ")
 			}
-			d.writeRaw(typ.In(i).String())
+			if typ.IsVariadic() && i == typ.NumIn()-1 {
+				d.writeRaw("..." + typ.In(i).Elem().String())
+			} else {
+				d.writeRaw(typ.In(i).String())
+			}
 		}
 		d.writeRaw(")")
+		switch typ.NumOut() {
+		case 0:
+		case 1:
+			d.writeRaw(" " + typ.Out(0).String())
+		default:
+			d.writeRaw(" (")
+			for i := 0; i < typ.NumOut(); i++ {
+				if i > 0 {
+					d.writeRaw(", ")
+				}
+				d.writeRaw(typ.Out(i).String())
+			}
+			d.writeRaw(")")
+		}
 	}
 	d.writeRaw(" ")
 
@@ -229,12 +248,13 @@ func (d *dumper) writeFunc() {
 //go:generate go run cmd/zero/main.go
 
 func (d *dumper) zeroValue(rt reflect.Type) string {
-	if cached, ok := d.cachedZeroValues[rt]; ok {
-		return cached
+	// Only default primitive output is independent of options and nesting depth.
+	if len(d.convertibleTypes) == 0 && d.uintFormat == DecimalUint {
+		if zero, ok := zeroPrimitives[rt]; ok {
+			return zero
+		}
 	}
-	zero := dumpclone(d, reflect.Zero(rt))
-	d.cachedZeroValues[rt] = zero
-	return zero
+	return dumpclone(d, reflect.Zero(rt))
 }
 
 func (d *dumper) writePtr() {
@@ -259,11 +279,6 @@ func (d *dumper) writePtr() {
 		d.writePointer()
 		return
 	}
-	convertFunc, ok := d.convertibleTypes[deref.Type()]
-	if ok {
-		convertFunc(d.value, &dumpWriter{d})
-		return
-	}
 	d.printf("&%s", dumpclone(d, deref))
 }
 
@@ -276,6 +291,9 @@ func (d *dumper) writeStruct() {
 	for i := 0; i < numField; i++ {
 		field := d.value.Type().Field(i)
 		if d.exportedOnly && !isExported(field) {
+			continue
+		}
+		if d.omitEmptyFields && d.value.Field(i).IsZero() {
 			continue
 		}
 		fieldIdxs = append(fieldIdxs, i)

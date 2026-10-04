@@ -113,3 +113,63 @@ fmt.Println(
 MIT License
 
 Copyright (c) 2022 codehex
+
+## Omit zero-value fields
+
+Use `dd.WithOmitEmptyFields()` to omit zero-value struct fields recursively:
+
+```go
+type Config struct {
+    Name string
+    Retries int
+}
+fmt.Println(dd.Dump(Config{Name: "worker"}, dd.WithOmitEmptyFields()))
+// main.Config{
+//   Name: "worker",
+// }
+```
+
+This uses `reflect.Value.IsZero`: nil slices and maps are omitted, but non-nil
+empty slices and maps are retained. Non-nil pointers and interfaces containing
+typed nil values are also retained. It composes with `WithExportedOnly`,
+`WithIndent`, and custom dump functions. Fields are filtered before custom dump
+functions run; custom functions control their own output.
+
+## Go language compatibility
+
+The CI matrix covers Go 1.16 through Go 1.27. Newer syntax tests have version
+build constraints so older Go versions can still run the main test suite.
+The module's `go` directive remains at 1.18; the pre-generics API is selected by
+build tags on Go 1.16 and 1.17.
+
+`dd` inspects runtime values, rather than parsing the source that created them.
+The following language changes were reviewed against the official release notes:
+
+| Go | Language changes relevant to this review | Effect on dumping |
+| --- | --- | --- |
+| [1.18](https://go.dev/doc/go1.18#language) | Type parameters, type sets, `any`, `comparable` | Concrete generic structs and functions are tested. Constraints are not runtime values. |
+| [1.19](https://go.dev/doc/go1.19#language) | Method type-parameter scope correction; memory-model clarification | No new value syntax to emit. |
+| [1.20](https://go.dev/doc/go1.20#language) | Slice-to-array conversions; comparable constraint relaxation | Resulting arrays and instantiated types use existing handlers. |
+| [1.21](https://go.dev/doc/go1.21#language) | `min`, `max`, `clear`; improved type inference | Built-ins produce ordinary values. Tests no longer depend on private standard-library layouts (issue #21). |
+| [1.22](https://go.dev/doc/go1.22#language) | Integer range; per-iteration loop variables | These change value creation, not dump syntax. |
+| [1.23](https://go.dev/doc/go1.23#language) | Range over iterator functions | `iter.Seq` and `iter.Seq2` are tested as function values, without executing them. |
+| [1.24](https://go.dev/doc/go1.24#language) | Generic type aliases | Aliases dump as their underlying runtime type; covered by tests. |
+| [1.25](https://go.dev/doc/go1.25#language) | No program-affecting language changes | Existing handlers apply. |
+| [1.26](https://go.dev/doc/go1.26#language) | `new(expression)`; self-referential generic constraints | Expression-created pointers use the existing pointer format; constraints do not introduce runtime kinds. |
+| [1.27](https://go.dev/doc/go1.27#language) | Generic methods, field selectors in struct literal keys, broader function type inference | Instantiated method values, promoted-field literals, and inferred function assignments are tested. Struct output continues to use explicit nested fields. |
+
+Named function dumps preserve variadic arguments and all result types. Generated
+function and composite-value expressions in the compatibility tests are checked
+with `go/types`, in addition to the existing syntax checks.
+
+Dumping does not reconstruct original source expressions, alias spelling, or
+function bodies. Non-nil primitive pointers keep their existing address-based
+representation, including those created with `new(expression)`; that output is
+for inspecting the current process, not portable serialized data. Types with
+unexported fields may require `WithExportedOnly` or a custom dump function before
+using the output in a different package.
+
+Generic type names come from reflection. For type arguments from packages with
+multi-segment import paths, reflection can include that path in the name (for
+example, `Box[net/http.Cookie]`), which is not a valid Go type expression. Use
+`WithDumpFunc` to supply the qualified type name and output for these values.

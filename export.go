@@ -37,6 +37,15 @@ func WithExportedOnly() OptionFunc {
 	}
 }
 
+// WithOmitEmptyFields omits struct fields whose values are zero according to
+// reflect.Value.IsZero. Non-nil empty slices and maps, non-nil pointers, and
+// interfaces containing typed nil values are retained. It applies recursively.
+func WithOmitEmptyFields() OptionFunc {
+	return func(o *options) {
+		o.omitEmptyFields = true
+	}
+}
+
 // WithIndent adjust indent nested in any blocks.
 // default is 2 spaces.
 func WithIndent(indent int) OptionFunc {
