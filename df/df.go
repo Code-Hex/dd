@@ -1,6 +1,7 @@
 package df
 
 import (
+	"bytes"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -12,32 +13,64 @@ import (
 	"github.com/Code-Hex/dd"
 )
 
-// WithBytes is a wrapper of WithDumpFunc for []byte and []uint8.
+// WithRichBytes is a wrapper of WithDumpFunc for []byte and []uint8.
 // The format of the dump matches the output of `hexdump -C` on the command line.
+// Formatting retains a complete output block in memory.
 func WithRichBytes() dd.OptionFunc {
 	return dd.WithDumpFunc(
 		func(v []byte, w dd.Writer) {
-			dumpLines := strings.Split(hex.Dump(v), "\n")
-			for i := 0; i < len(dumpLines); i++ {
-				if dumpLines[i] != "" {
-					dumpLines[i] = "// " + dumpLines[i]
-				}
+			if v == nil {
+				w.Write("[]byte(nil)")
+				return
 			}
 			var buf strings.Builder
-			buf.WriteString("return []byte{")
+			// Reserve the block once: at most 82 bytes per comment line,
+			// six per byte literal, and the return statement punctuation.
+			if len(v) <= (int(^uint(0)>>1)-98)/12 {
+				buf.Grow((len(v)/16+1)*82 + len(v)*6 + 16)
+			}
+			dumper := hex.Dumper(&commentWriter{out: &buf, lineStart: true})
+			_, _ = dumper.Write(v)
+			_ = dumper.Close()
+			buf.WriteString("\nreturn []byte{")
+			const digits = "0123456789abcdef"
 			for i, b := range v {
-				fmt.Fprintf(&buf, "0x%02x", b)
-				if i != len(v)-1 {
+				if i > 0 {
 					buf.WriteString(", ")
 				}
+				buf.WriteString("0x")
+				buf.WriteByte(digits[b>>4])
+				buf.WriteByte(digits[b&15])
 			}
 			buf.WriteString("}")
-			dumpLines = append(dumpLines, buf.String())
 			w.Write("func() []byte ")
-			w.WriteBlock(strings.Join(dumpLines, "\n"))
+			w.WriteBlock(buf.String())
 			w.Write("()")
 		},
 	)
+}
+
+// commentWriter prefixes hex.Dumper's lines without retaining a second copy.
+type commentWriter struct {
+	out       *strings.Builder
+	lineStart bool
+}
+
+func (w *commentWriter) Write(p []byte) (int, error) {
+	n := len(p)
+	for len(p) > 0 {
+		if w.lineStart {
+			w.out.WriteString("// ")
+		}
+		i := bytes.IndexByte(p, '\n')
+		w.lineStart = i >= 0
+		if i < 0 {
+			i = len(p) - 1
+		}
+		w.out.Write(p[:i+1])
+		p = p[i+1:]
+	}
+	return n, nil
 }
 
 // WithJSONRawMessage is a wrapper of WithDumpFunc for json.RawMessage.
