@@ -168,3 +168,8 @@ representation, including those created with `new(expression)`; that output is
 for inspecting the current process, not portable serialized data. Types with
 unexported fields may require `WithExportedOnly` or a custom dump function before
 using the output in a different package.
+
+Generic type names come from reflection. For type arguments from packages with
+multi-segment import paths, reflection can include that path in the name (for
+example, `Box[net/http.Cookie]`), which is not a valid Go type expression. Use
+`WithDumpFunc` to supply the qualified type name and output for these values.

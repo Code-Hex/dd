@@ -1,0 +1,5 @@
+# These commands generate source and test fixtures; measure the library packages.
+# Recent Go versions include commands without tests as 0% covered packages.
+ignore:
+  - "cmd/zero/**"
+  - "cmd/wantdumper/**"

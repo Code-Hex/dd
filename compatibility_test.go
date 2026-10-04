@@ -59,3 +59,66 @@ func TestReflectValueAsData(t *testing.T) {
 		t.Fatal(got)
 	}
 }
+
+func TestFunctionZeroFormatting(t *testing.T) {
+	t.Run("custom primitive", func(t *testing.T) {
+		calls := 0
+		got := dd.Dump(func() int { return 0 }, dd.WithDumpFunc(func(n int, w dd.Writer) {
+			if n != 0 {
+				t.Fatalf("expected zero, got %d", n)
+			}
+			calls++
+			w.Write("123")
+		}))
+		if !strings.Contains(got, "return 123") || calls != 1 {
+			t.Fatalf("calls=%d dump=%s", calls, got)
+		}
+	})
+	t.Run("hex", func(t *testing.T) {
+		got := dd.Dump(func() uint8 { return 0 }, dd.WithUintFormat(dd.HexUint))
+		if !strings.Contains(got, "return 0x00") {
+			t.Fatal(got)
+		}
+	})
+	t.Run("nested result", func(t *testing.T) {
+		type result struct{ N int }
+		f := func() result { return result{} }
+		value := struct {
+			A func() result
+			B struct{ F func() result }
+		}{A: f, B: struct{ F func() result }{F: f}}
+		got := dd.Dump(value)
+		if !strings.Contains(got, "return dd_test.result{\n        N: 0,\n      }") {
+			t.Fatal(got)
+		}
+	})
+}
+
+func TestPointerCustomDump(t *testing.T) {
+	type result struct{ N int }
+	value := &result{N: 42}
+	got := dd.Dump(value, dd.WithOmitEmptyFields(), dd.WithDumpFunc(func(v result, w dd.Writer) {
+		if v != *value {
+			t.Fatalf("wrong value: %v", v)
+		}
+		w.Write("dd_test.result{N: 42}")
+	}))
+	if got != "&dd_test.result{N: 42}" {
+		t.Fatal(got)
+	}
+	checkDumpType(t, got, "type result struct { N int }", "*result")
+}
+
+func TestFunctionZeroCustomRepeatedResults(t *testing.T) {
+	type result struct{ N int }
+	calls := 0
+	got := dd.Dump(func() (result, result) { return result{}, result{} },
+		dd.WithDumpFunc(func(v result, w dd.Writer) {
+			calls++
+			w.Write("dd_test.result{}")
+		}))
+	if calls != 2 {
+		t.Fatalf("expected each result to use the callback, calls=%d dump=%s", calls, got)
+	}
+	checkDumpType(t, got, "type result struct { N int }", "func() (result, result)")
+}
