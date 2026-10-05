@@ -345,12 +345,12 @@ func (d *dumper) writeMap() {
 
 	d.withTabs(func() {
 		d.writeBlock(func() {
-			keys := sort.Keys(d.value.MapKeys())
-			for _, key := range keys {
+			keys, values := sort.MapEntries(d.value)
+			for i, key := range keys {
 				if d.err != nil {
 					return
 				}
-				val := d.value.MapIndex(key)
+				val := values[i]
 				// Preserve tabwriter's indentation columns for multiline keys.
 				d.writeRaw(strings.Repeat("\t", d.depth))
 				d.writeValue(key)

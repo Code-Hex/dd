@@ -31,6 +31,29 @@ func Keys(vs []reflect.Value) []reflect.Value {
 	return vs2
 }
 
+// MapEntries returns the keys and values of the map m, sorted by key.
+//
+// Unlike pairing Keys(m.MapKeys()) with m.MapIndex, it reads every entry via
+// a map iterator, so entries whose key is not equal to itself (NaN, or a
+// struct/array/interface holding NaN) keep their own value and are never
+// dropped as duplicates.
+func MapEntries(m reflect.Value) (keys, values []reflect.Value) {
+	type entry struct{ k, v reflect.Value }
+	entries := make([]entry, 0, m.Len())
+	iter := m.MapRange()
+	for iter.Next() {
+		entries = append(entries, entry{k: iter.Key(), v: iter.Value()})
+	}
+	sort.SliceStable(entries, func(i, j int) bool { return isLess(entries[i].k, entries[j].k) })
+
+	keys = make([]reflect.Value, len(entries))
+	values = make([]reflect.Value, len(entries))
+	for i, e := range entries {
+		keys[i], values[i] = e.k, e.v
+	}
+	return keys, values
+}
+
 // isLess is a generic function for sorting arbitrary map keys.
 // The inputs must be of the same type and must be comparable.
 func isLess(x, y reflect.Value) bool {
