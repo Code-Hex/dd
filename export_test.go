@@ -677,3 +677,29 @@ func TestUnexportedField(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestDumpMapNaNKeys(t *testing.T) {
+	// A NaN key is never equal to itself, so it can't be looked up with
+	// MapIndex. Each NaN entry must still be dumped with its own value.
+	t.Run("single", func(t *testing.T) {
+		m := map[float64]int{math.NaN(): 7, 1: 1}
+		want := "map[float64]int{\n  NaN:      7,\n  1.000000: 1,\n}"
+		if got := dd.Dump(m); got != want {
+			t.Fatalf("want %q, but got %q", want, got)
+		}
+	})
+
+	t.Run("multiple", func(t *testing.T) {
+		m := map[float64]string{math.NaN(): "x", 2: "two"}
+		m[math.NaN()] = "y"
+		got := dd.Dump(m)
+		for _, s := range []string{`NaN: "x",`, `NaN: "y",`, `2.000000: "two",`} {
+			if !strings.Contains(strings.Join(strings.Fields(got), " "), s) {
+				t.Errorf("dump is missing %s:\n%s", s, got)
+			}
+		}
+		if n := strings.Count(got, "NaN"); n != 2 {
+			t.Errorf("want 2 NaN entries, got %d:\n%s", n, got)
+		}
+	})
+}
